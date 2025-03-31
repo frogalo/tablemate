@@ -86,6 +86,7 @@ body {
     font-weight: 500;
     box-shadow: 0 4px 6px -1px rgba(40, 128, 184, 0.2);
     transition: all 0.2s;
+    cursor: pointer;
 }
 
 .btn-primary:hover {
@@ -159,6 +160,6 @@ body {
     linear-gradient(45deg, transparent 75%, var(--neutral) 75%),
     linear-gradient(-45deg, transparent 75%, var(--neutral) 75%);
     background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
     opacity: 0.1;
 }
