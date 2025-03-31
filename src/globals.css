@@ -1,0 +1,154 @@
+@import 'tailwindcss';
+
+:root {
+    --primary: #127369;    /* Teal */
+    --secondary: #10403B;  /* Dark Teal */
+    --accent: #8AA6A3;     /* Light Teal */
+    --neutral: #4C5958;    /* Gray Teal */
+    --light: #e5e5e5;      /* Light Gray */
+}
+
+body {
+    color: var(--neutral);
+    background: var(--light);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex-grow: 1;
+}
+
+/* Gradient backgrounds */
+.gradient-header {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+}
+
+.gradient-button {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    color: white;
+    transition: all 0.3s;
+}
+
+.gradient-button:hover {
+    background: linear-gradient(to right, var(--secondary), var(--primary));
+    filter: brightness(110%);
+}
+
+/* Custom components */
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--light);
+    opacity: 0.8;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    opacity: 1;
+    border-bottom-color: var(--light);
+}
+
+.nav-link-active {
+    color: var(--light);
+    opacity: 1;
+    border-bottom-color: var(--light);
+}
+
+.card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(76, 89, 87, 0.1);
+    padding: 1.5rem;
+    border: 1px solid var(--accent);
+    transition: box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(76, 89, 87, 0.2);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    box-shadow: 0 4px 6px -1px rgba(18, 115, 105, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: var(--secondary);
+    box-shadow: 0 10px 15px -3px rgba(18, 115, 105, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Custom animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Additional theme-specific styles */
+.text-primary {
+    color: var(--primary);
+}
+
+.text-secondary {
+    color: var(--secondary);
+}
+
+.text-accent {
+    color: var(--accent);
+}
+
+.bg-primary {
+    background-color: var(--primary);
+}
+
+.bg-secondary {
+    background-color: var(--secondary);
+}
+
+.bg-accent {
+    background-color: var(--accent);
+}
+
+.border-primary {
+    border-color: var(--primary);
+}
+
+.border-accent {
+    border-color: var(--accent);
+}
+
+/* Custom background patterns */
+.bg-pattern {
+    background-color: var(--light);
+    background-image: linear-gradient(45deg, var(--accent) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--accent) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--accent) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--accent) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.1;
+}
