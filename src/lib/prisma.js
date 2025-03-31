@@ -1,12 +1,15 @@
+import path from "path";
+
 let PrismaClientConstructor;
 
 if (process.env.NODE_ENV === "production") {
-    // Adjust the path as necessary
-    // Use your production client generated in prisma/generated/prod-client
-    PrismaClientConstructor = require("/prisma/generated/prod-client").PrismaClient;
+    // Use the production client generated in "generated/prod-client"
+    const prodClientPath = path.join(process.cwd(), "generated", "prod-client");
+    PrismaClientConstructor = require(prodClientPath).PrismaClient;
 } else {
-    // Use your development client generated in prisma/generated/dev-client
-    PrismaClientConstructor = require("/prisma/generated/dev-client").PrismaClient;
+    // Use the development client generated in "generated/dev-client"
+    const devClientPath = path.join(process.cwd(), "generated", "dev-client");
+    PrismaClientConstructor = require(devClientPath).PrismaClient;
 }
 
 const prisma = new PrismaClientConstructor();
