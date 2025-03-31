@@ -11,7 +11,7 @@ export default function Home() {
                     parking spots, and IT equipment all in one place.
                 </p>
                 <div className="mt-8 flex items-center justify-center gap-x-6">
-                    <a href="/dashboard" className="btn-primary">
+                    <a href="/login" className="btn-primary">
                         Get started
                     </a>
                     <a href="/about" className="text-sm font-semibold leading-6 text-secondary">
