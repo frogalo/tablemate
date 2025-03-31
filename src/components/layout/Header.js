@@ -1,4 +1,10 @@
+"use client";
+import Link from 'next/link';
+import {usePathname} from 'next/navigation';
+
 export default function Header() {
+    const pathname = usePathname();
+
     return (
         <header className="gradient-header">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -6,21 +12,31 @@ export default function Header() {
                     <div className="flex">
                         {/* Logo */}
                         <div className="flex-shrink-0 flex items-center">
-                            <a href="/" className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
+                            <Link href="/"
+                                  className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
                                 TableMate
-                            </a>
+                            </Link>
                         </div>
                         {/* Navigation Links */}
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            <a href="/dashboard" className="nav-link">
+                            <Link
+                                href="/dashboard"
+                                className={`nav-link ${pathname === '/dashboard' ? 'nav-link-active' : ''}`}
+                            >
                                 Dashboard
-                            </a>
-                            <a href="/reservations" className="nav-link">
+                            </Link>
+                            <Link
+                                href="/reservations"
+                                className={`nav-link ${pathname === '/reservations' ? 'nav-link-active' : ''}`}
+                            >
                                 Reservations
-                            </a>
-                            <a href="/orders" className="nav-link">
+                            </Link>
+                            <Link
+                                href="/orders"
+                                className={`nav-link ${pathname === '/orders' ? 'nav-link-active' : ''}`}
+                            >
                                 Orders
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     {/* User Menu */}
@@ -53,7 +69,7 @@ export default function Header() {
                                 <span className="sr-only">Open user menu</span>
                                 <div className="h-8 w-8 rounded-full flex items-center justify-center">
                                     <span className="text-white text-sm font-medium">
-                                        U
+                                        JU
                                     </span>
                                 </div>
                             </button>
