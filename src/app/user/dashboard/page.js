@@ -63,10 +63,10 @@ export default function Dashboard() {
 
                     {/* Quick Actions */}
                     <div className="card">
-                        <h2 className="text-xl font-semibold text-primary mb-14">
+                        <h2 className="text-xl font-semibold text-primary mb-8">
                             Quick Actions
                         </h2>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {quickActions.map((action, index) => (
                                 <a
                                     key={index}
@@ -102,7 +102,9 @@ export default function Dashboard() {
                                     key={index}
                                     className="border-b border-accent last:border-0"
                                 >
-                                    <td className="py-3 text-neutral">{reservation.resource}</td>
+                                    <td className="py-3 text-neutral">
+                                        {reservation.resource}
+                                    </td>
                                     <td className="py-3 text-neutral">{reservation.date}</td>
                                     <td className="py-3 text-neutral">{reservation.time}</td>
                                     <td className="py-3">
@@ -149,24 +151,24 @@ const recentActivities = [
 
 const quickActions = [
     {
-        label: "New Room Reservation",
+        label: "Room Reservation",
         href: "/reservations/new?type=room",
-        icon: "fa-door-open", // appropriate icon for room reservations
+        icon: "fa-door-open",
     },
     {
-        label: "New Parking Spot Reservation",
+        label: "Parking Spot Reservation",
         href: "/reservations/new?type=parking",
-        icon: "fa-parking", // appropriate icon for parking
+        icon: "fa-parking",
     },
     {
-        label: "New Desk Reservation",
+        label: "Desk Reservation",
         href: "/reservations/new?type=desk",
-        icon: "fa-chair", // appropriate icon for desk reservations
+        icon: "fa-chair",
     },
     {
-        label: "New Conference Room Reservation",
+        label: "Conference Room Reservation",
         href: "/reservations/new?type=conference",
-        icon: "fa-building", // icon for conference rooms
+        icon: "fa-building",
     },
     {
         label: "Order Food",
