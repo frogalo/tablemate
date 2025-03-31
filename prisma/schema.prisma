@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  identifier    String?
+  firstName     String?
+  lastName      String?
+  role          String         @default("USER")
+  reservations  Reservation[]
+  orders        Order[]
+  notifications Notification[]
+}
+
+model Resource {
+  id           Int            @id @default(autoincrement())
+  identifier   String?
+  type         String // "DESK", "PARKING", "CONFERENCE_ROOM"
+  name         String?
+  availability Availability[]
+  reservations Reservation[]
+}
+
+model Reservation {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  resourceId Int
+  startTime  DateTime
+  endTime    DateTime
+  status     String
+  user       User     @relation(fields: [userId], references: [id])
+  resource   Resource @relation(fields: [resourceId], references: [id])
+}
+
+model Order {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  itemType  String // "MEAL", "IT_EQUIPMENT"
+  itemId    Int
+  status    String
+  delivery  Delivery?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model Availability {
+  id          Int      @id @default(autoincrement())
+  resourceId  Int
+  startTime   DateTime
+  endTime     DateTime
+  isAvailable Boolean
+  resource    Resource @relation(fields: [resourceId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+}
