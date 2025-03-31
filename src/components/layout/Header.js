@@ -4,62 +4,59 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "@/lib/UserContext";
+import ClientOnly from "@/components/ClientOnly";
 
-export default function Header() {
+function HeaderContent() {
     const pathname = usePathname();
-    const { user, setUser } = useContext(UserContext); // Access user state
-    const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown toggle
-    const [notifications, setNotifications] = useState(3); // Example notification count
-    const dropdownRef = useRef(null); // Reference for dropdown menu
+    const { user, setUser } = useContext(UserContext);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [notifications, setNotifications] = useState(3);
+    const dropdownRef = useRef(null);
 
     const handleUserChange = (newUser) => {
         setUser(newUser);
-        setDropdownOpen(false); // Close dropdown after selection
+        setDropdownOpen(false);
     };
 
     const renderNavLinks = () => {
         if (user === "SignedOut") {
-            return null; // No navigation links for SignedOut
+            return null;
         }
 
         if (user === "Admin") {
             return (
                 <>
-                    <Link legacyBehavior href="/admin/dashboard">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/admin/dashboard" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Dashboard
-                        </a>
+                    <Link
+                        href="/admin/dashboard"
+                        className={`nav-link ${
+                            pathname === "/admin/dashboard" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Dashboard
                     </Link>
-                    <Link legacyBehavior href="/admin/reports">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/admin/reports" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Reports
-                        </a>
+                    <Link
+                        href="/admin/reports"
+                        className={`nav-link ${
+                            pathname === "/admin/reports" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Reports
                     </Link>
-                    <Link legacyBehavior href="/admin/reservations">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/admin/reservations" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Reservations
-                        </a>
+                    <Link
+                        href="/admin/reservations"
+                        className={`nav-link ${
+                            pathname === "/admin/reservations" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Reservations
                     </Link>
-                    <Link legacyBehavior href="/admin/users">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/admin/users" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Users
-                        </a>
+                    <Link
+                        href="/admin/users"
+                        className={`nav-link ${
+                            pathname === "/admin/users" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Users
                     </Link>
                 </>
             );
@@ -68,47 +65,42 @@ export default function Header() {
         if (user === "User") {
             return (
                 <>
-                    <Link legacyBehavior href="/user/dashboard">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/user/dashboard" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Dashboard
-                        </a>
+                    <Link
+                        href="/user/dashboard"
+                        className={`nav-link ${
+                            pathname === "/user/dashboard" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Dashboard
                     </Link>
-                    <Link legacyBehavior href="/user/orders">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/user/orders" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Orders
-                        </a>
+                    <Link
+                        href="/user/orders"
+                        className={`nav-link ${
+                            pathname === "/user/orders" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Orders
                     </Link>
-                    <Link legacyBehavior href="/user/reservations">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/user/reservations" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Reservations
-                        </a>
+                    <Link
+                        href="/user/reservations"
+                        className={`nav-link ${
+                            pathname === "/user/reservations" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Reservations
                     </Link>
-                    <Link legacyBehavior href="/user/profile">
-                        <a
-                            className={`nav-link ${
-                                pathname === "/user/profile" ? "nav-link-active" : ""
-                            }`}
-                        >
-                            Profile
-                        </a>
+                    <Link
+                        href="/user/profile"
+                        className={`nav-link ${
+                            pathname === "/user/profile" ? "nav-link-active" : ""
+                        }`}
+                    >
+                        Profile
                     </Link>
                 </>
             );
         }
     };
-
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -131,11 +123,7 @@ export default function Header() {
                     <div className="flex items-center">
                         {/* Logo */}
                         <Link href="/" className="flex items-center">
-                            <img
-                                src="/logo.png"
-                                alt="TableMate Logo"
-                                className="h-8 w-8 mr-2"
-                            />
+                            <img src="/logo.png" alt="TableMate Logo" className="h-8 w-8 mr-2" />
                             <span className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
                 TableMate
               </span>
@@ -162,7 +150,10 @@ export default function Header() {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118
+                      14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4
+                      0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214
+                      1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                                     />
                                 </svg>
                                 {notifications > 0 && (
@@ -236,5 +227,13 @@ export default function Header() {
                 </div>
             </nav>
         </header>
+    );
+}
+
+export default function Header() {
+    return (
+        <ClientOnly>
+            <HeaderContent />
+        </ClientOnly>
     );
 }

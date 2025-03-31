@@ -7,7 +7,9 @@ export default function Dashboard() {
                 {/* Dashboard Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-                    <p className="text-neutral mt-2">Welcome back to your workspace</p>
+                    <p className="text-neutral mt-2">
+                        Welcome back to your workspace
+                    </p>
                 </div>
 
                 {/* Stats Grid */}
@@ -38,12 +40,18 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Recent Activity */}
                     <div className="card">
-                        <h2 className="text-xl font-semibold text-primary mb-4">Recent Activity</h2>
+                        <h2 className="text-xl font-semibold text-primary mb-4">
+                            Recent Activity
+                        </h2>
                         <div className="space-y-4">
                             {recentActivities.map((activity, index) => (
-                                <div key={index}
-                                     className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0">
-                                    <div className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}></div>
+                                <div
+                                    key={index}
+                                    className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0"
+                                >
+                                    <div
+                                        className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}
+                                    ></div>
                                     <div>
                                         <p className="text-neutral">{activity.description}</p>
                                         <p className="text-sm text-accent">{activity.time}</p>
@@ -55,13 +63,15 @@ export default function Dashboard() {
 
                     {/* Quick Actions */}
                     <div className="card">
-                        <h2 className="text-xl font-semibold text-primary mb-14">Quick Actions</h2>
+                        <h2 className="text-xl font-semibold text-primary mb-14">
+                            Quick Actions
+                        </h2>
                         <div className="grid grid-cols-2 gap-4">
                             {quickActions.map((action, index) => (
                                 <a
                                     key={index}
                                     href={action.href}
-                                    className="btn-primary flex flex-col items-center justify-center text-center py-6 px-4 rounded-lg text-lg hover:scale-105 transition-transform"
+                                    className="btn-primary flex flex-col items-center justify-center text-center h-32 rounded-lg text-lg hover:scale-105 transition-transform"
                                 >
                                     <i className={`fa ${action.icon} text-2xl mb-2`}></i>
                                     {action.label}
@@ -73,7 +83,9 @@ export default function Dashboard() {
 
                 {/* Upcoming Reservations */}
                 <div className="mt-8">
-                    <h2 className="text-xl font-semibold text-primary mb-4">Upcoming Reservations</h2>
+                    <h2 className="text-xl font-semibold text-primary mb-4">
+                        Upcoming Reservations
+                    </h2>
                     <div className="card">
                         <table className="w-full">
                             <thead>
@@ -86,14 +98,19 @@ export default function Dashboard() {
                             </thead>
                             <tbody>
                             {upcomingReservations.map((reservation, index) => (
-                                <tr key={index} className="border-b border-accent last:border-0">
+                                <tr
+                                    key={index}
+                                    className="border-b border-accent last:border-0"
+                                >
                                     <td className="py-3 text-neutral">{reservation.resource}</td>
                                     <td className="py-3 text-neutral">{reservation.date}</td>
                                     <td className="py-3 text-neutral">{reservation.time}</td>
                                     <td className="py-3">
-                                        <span className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}>
-                                            {reservation.status}
-                                        </span>
+                      <span
+                          className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}
+                      >
+                        {reservation.status}
+                      </span>
                                     </td>
                                 </tr>
                             ))}
@@ -111,46 +128,56 @@ const recentActivities = [
     {
         description: "Conference room 'A' reserved",
         time: "2 minutes ago",
-        color: "bg-primary"
+        color: "bg-primary",
     },
     {
         description: "New IT equipment order submitted",
         time: "1 hour ago",
-        color: "bg-secondary"
+        color: "bg-secondary",
     },
     {
         description: "Desk reservation cancelled",
         time: "3 hours ago",
-        color: "bg-accent"
+        color: "bg-accent",
     },
     {
         description: "Parking spot 'B4' reserved",
         time: "5 hours ago",
-        color: "bg-primary"
-    }
+        color: "bg-primary",
+    },
 ];
 
 const quickActions = [
     {
-        label: "New Reservation",
-        href: "/reservations/new",
-        icon: "fa-calendar-plus"
+        label: "New Room Reservation",
+        href: "/reservations/new?type=room",
+        icon: "fa-door-open", // appropriate icon for room reservations
     },
     {
-        label: "Order Equipment",
-        href: "/orders/new",
-        icon: "fa-laptop"
+        label: "New Parking Spot Reservation",
+        href: "/reservations/new?type=parking",
+        icon: "fa-parking", // appropriate icon for parking
     },
     {
-        label: "View Resources",
-        href: "/resources",
-        icon: "fa-boxes"
+        label: "New Desk Reservation",
+        href: "/reservations/new?type=desk",
+        icon: "fa-chair", // appropriate icon for desk reservations
     },
     {
-        label: "Report Issue",
-        href: "/support",
-        icon: "fa-exclamation-circle"
-    }
+        label: "New Conference Room Reservation",
+        href: "/reservations/new?type=conference",
+        icon: "fa-building", // icon for conference rooms
+    },
+    {
+        label: "Order Food",
+        href: "/orders/new?type=food",
+        icon: "fa-utensils",
+    },
+    {
+        label: "Order IT Equipment",
+        href: "/orders/new?type=it",
+        icon: "fa-laptop",
+    },
 ];
 
 const upcomingReservations = [
@@ -159,27 +186,27 @@ const upcomingReservations = [
         date: "Today",
         time: "14:00 - 15:00",
         status: "Confirmed",
-        statusClass: "bg-green-100 text-green-800"
+        statusClass: "bg-green-100 text-green-800",
     },
     {
         resource: "Desk 15B",
         date: "Tomorrow",
         time: "09:00 - 17:00",
         status: "Pending",
-        statusClass: "bg-yellow-100 text-yellow-800"
+        statusClass: "bg-yellow-100 text-yellow-800",
     },
     {
         resource: "Parking B4",
         date: "23 Mar 2024",
         time: "All day",
         status: "Confirmed",
-        statusClass: "bg-green-100 text-green-800"
+        statusClass: "bg-green-100 text-green-800",
     },
     {
         resource: "Meeting Room 3",
         date: "24 Mar 2024",
         time: "11:00 - 12:00",
         status: "Confirmed",
-        statusClass: "bg-green-100 text-green-800"
-    }
+        statusClass: "bg-green-100 text-green-800",
+    },
 ];

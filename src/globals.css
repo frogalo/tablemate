@@ -13,6 +13,7 @@ body {
     color: var(--neutral);
     background: var(--light);
     overflow-x: hidden;
+    overflow-y: auto; /* Allow vertical scrolling */
     min-height: 100vh;
 }
 
