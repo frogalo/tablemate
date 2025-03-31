@@ -6,8 +6,8 @@
     "dev:prisma": "prisma generate --schema=prisma/schema.dev.prisma",
     "dev": "npm run dev:prisma && next dev",
     "build:prisma": "prisma generate --schema=prisma/schema.prod.prisma",
-    "build": "npm run build:prisma && next build",
-    "postinstall": "prisma generate",
+    "build": "prisma generate --schema=prisma/schema.prod.prisma && next build",
+    "postinstall": "prisma generate --schema=prisma/schema.prod.prisma",
     "lint": "next lint"
   },
   "dependencies": {
