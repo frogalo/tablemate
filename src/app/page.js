@@ -1,3 +1,8 @@
+"use client";
+
+import Link from "next/link";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 export default function Home() {
     return (
         <div className="h-full flex flex-col justify-center">
@@ -11,12 +16,13 @@ export default function Home() {
                     parking spots, and IT equipment all in one place.
                 </p>
                 <div className="mt-8 flex items-center justify-center gap-x-6">
-                    <a href="/login" className="btn-primary">
+                    <Link href="/login" className="btn-primary inline-flex items-center">
+                        <i className="fa fa-sign-in-alt text-xl mr-2"></i>
                         Get started
-                    </a>
-                    <a href="/about" className="text-sm font-semibold leading-6 text-secondary">
+                    </Link>
+                    <Link href="/about" className="text-sm font-semibold leading-6 text-secondary inline-flex items-center">
                         Learn more <span aria-hidden="true">→</span>
-                    </a>
+                    </Link>
                 </div>
             </div>
 

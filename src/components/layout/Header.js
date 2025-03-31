@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "@/lib/UserContext";
 
 export default function Header() {
@@ -10,6 +10,7 @@ export default function Header() {
     const { user, setUser } = useContext(UserContext); // Access user state
     const [dropdownOpen, setDropdownOpen] = useState(false); // Dropdown toggle
     const [notifications, setNotifications] = useState(3); // Example notification count
+    const dropdownRef = useRef(null); // Reference for dropdown menu
 
     const handleUserChange = (newUser) => {
         setUser(newUser);
@@ -24,29 +25,41 @@ export default function Header() {
         if (user === "Admin") {
             return (
                 <>
-                    <Link
-                        href="/admin/dashboard"
-                        className={`nav-link ${pathname === "/admin/dashboard" ? "nav-link-active" : ""}`}
-                    >
-                        Dashboard
+                    <Link legacyBehavior href="/admin/dashboard">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/admin/dashboard" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Dashboard
+                        </a>
                     </Link>
-                    <Link
-                        href="/admin/reports"
-                        className={`nav-link ${pathname === "/admin/reports" ? "nav-link-active" : ""}`}
-                    >
-                        Reports
+                    <Link legacyBehavior href="/admin/reports">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/admin/reports" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Reports
+                        </a>
                     </Link>
-                    <Link
-                        href="/admin/reservations"
-                        className={`nav-link ${pathname === "/admin/reservations" ? "nav-link-active" : ""}`}
-                    >
-                        Reservations
+                    <Link legacyBehavior href="/admin/reservations">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/admin/reservations" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Reservations
+                        </a>
                     </Link>
-                    <Link
-                        href="/admin/users"
-                        className={`nav-link ${pathname === "/admin/users" ? "nav-link-active" : ""}`}
-                    >
-                        Users
+                    <Link legacyBehavior href="/admin/users">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/admin/users" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Users
+                        </a>
                     </Link>
                 </>
             );
@@ -55,34 +68,61 @@ export default function Header() {
         if (user === "User") {
             return (
                 <>
-                    <Link
-                        href="/user/dashboard"
-                        className={`nav-link ${pathname === "/user/dashboard" ? "nav-link-active" : ""}`}
-                    >
-                        Dashboard
+                    <Link legacyBehavior href="/user/dashboard">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/user/dashboard" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Dashboard
+                        </a>
                     </Link>
-                    <Link
-                        href="/user/orders"
-                        className={`nav-link ${pathname === "/user/orders" ? "nav-link-active" : ""}`}
-                    >
-                        Orders
+                    <Link legacyBehavior href="/user/orders">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/user/orders" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Orders
+                        </a>
                     </Link>
-                    <Link
-                        href="/user/reservations"
-                        className={`nav-link ${pathname === "/user/reservations" ? "nav-link-active" : ""}`}
-                    >
-                        Reservations
+                    <Link legacyBehavior href="/user/reservations">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/user/reservations" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Reservations
+                        </a>
                     </Link>
-                    <Link
-                        href="/user/profile"
-                        className={`nav-link ${pathname === "/user/profile" ? "nav-link-active" : ""}`}
-                    >
-                        Profile
+                    <Link legacyBehavior href="/user/profile">
+                        <a
+                            className={`nav-link ${
+                                pathname === "/user/profile" ? "nav-link-active" : ""
+                            }`}
+                        >
+                            Profile
+                        </a>
                     </Link>
                 </>
             );
         }
     };
+
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     return (
         <header className="gradient-header">
@@ -97,14 +137,12 @@ export default function Header() {
                                 className="h-8 w-8 mr-2"
                             />
                             <span className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
-                                TableMate
-                            </span>
+                TableMate
+              </span>
                         </Link>
                     </div>
                     {/* Navigation Links */}
-                    <div className="hidden sm:flex sm:space-x-8">
-                        {renderNavLinks()}
-                    </div>
+                    <div className="hidden sm:flex sm:space-x-8">{renderNavLinks()}</div>
                     {/* User Menu */}
                     <div className="relative flex items-center space-x-4">
                         {/* Notification Button */}
@@ -129,12 +167,12 @@ export default function Header() {
                                 </svg>
                                 {notifications > 0 && (
                                     <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-            {notifications}
-        </span>
+                    {notifications}
+                  </span>
                                 )}
                             </button>
                         )}
-                        {/* User Circle */}
+                        {/* User Circle or Login */}
                         {user === "SignedOut" ? (
                             <Link
                                 href="/login"
@@ -150,32 +188,39 @@ export default function Header() {
                             >
                                 <span className="sr-only">Open user menu</span>
                                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-white/20">
-                                    <span className="text-white text-sm font-medium">
-                                        {user === "Admin" ? "AD" : "US"}
-                                    </span>
+                  <span className="text-white text-sm font-medium">
+                    {user === "Admin" ? "AD" : "US"}
+                  </span>
                                 </div>
                             </button>
                         )}
                         {/* Dropdown Menu */}
                         {dropdownOpen && user !== "SignedOut" && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                            <div
+                                ref={dropdownRef}
+                                className="absolute right-0 translate-y-6 w-48 bg-white rounded-md shadow-lg z-10"
+                            >
                                 <ul className="py-1">
-                                    <li>
-                                        <button
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                            onClick={() => handleUserChange("Admin")}
-                                        >
-                                            Switch to Admin
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                            onClick={() => handleUserChange("User")}
-                                        >
-                                            Switch to User
-                                        </button>
-                                    </li>
+                                    {user !== "Admin" && (
+                                        <li>
+                                            <button
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                                onClick={() => handleUserChange("Admin")}
+                                            >
+                                                Switch to Admin
+                                            </button>
+                                        </li>
+                                    )}
+                                    {user !== "User" && (
+                                        <li>
+                                            <button
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                                onClick={() => handleUserChange("User")}
+                                            >
+                                                Switch to User
+                                            </button>
+                                        </li>
+                                    )}
                                     <li>
                                         <button
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"

@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
     title: "TableMate - Resource Management System",
-        description: "Manage your office resources, reservations, and IT equipment",
+    description: "Manage your office resources, reservations, and IT equipment",
     icons: {
         icon: "/favicon.ico",
     },

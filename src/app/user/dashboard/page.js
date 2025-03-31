@@ -1,102 +1,108 @@
+import ProtectedRoute from "@/components/ProtectedRoute";
+
 export default function Dashboard() {
     return (
-        <div className="fade-in">
-            {/* Dashboard Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-                <p className="text-neutral mt-2">Welcome back to your workspace</p>
-            </div>
+        <ProtectedRoute>
+            <div className="fade-in">
+                {/* Dashboard Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
+                    <p className="text-neutral mt-2">Welcome back to your workspace</p>
+                </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="card">
-                    <h3 className="text-neutral mb-2">Active Reservations</h3>
-                    <p className="text-3xl font-bold text-primary">12</p>
-                    <p className="text-accent text-sm mt-2">↑ 8% from last week</p>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="card">
+                        <h3 className="text-neutral mb-2">Active Reservations</h3>
+                        <p className="text-3xl font-bold text-primary">12</p>
+                        <p className="text-accent text-sm mt-2">↑ 8% from last week</p>
+                    </div>
+                    <div className="card">
+                        <h3 className="text-neutral mb-2">Pending Orders</h3>
+                        <p className="text-3xl font-bold text-primary">5</p>
+                        <p className="text-accent text-sm mt-2">↓ 2% from last week</p>
+                    </div>
+                    <div className="card">
+                        <h3 className="text-neutral mb-2">Available Resources</h3>
+                        <p className="text-3xl font-bold text-primary">24</p>
+                        <p className="text-accent text-sm mt-2">of 30 total</p>
+                    </div>
+                    <div className="card">
+                        <h3 className="text-neutral mb-2">IT Equipment</h3>
+                        <p className="text-3xl font-bold text-primary">18</p>
+                        <p className="text-accent text-sm mt-2">items available</p>
+                    </div>
                 </div>
-                <div className="card">
-                    <h3 className="text-neutral mb-2">Pending Orders</h3>
-                    <p className="text-3xl font-bold text-primary">5</p>
-                    <p className="text-accent text-sm mt-2">↓ 2% from last week</p>
-                </div>
-                <div className="card">
-                    <h3 className="text-neutral mb-2">Available Resources</h3>
-                    <p className="text-3xl font-bold text-primary">24</p>
-                    <p className="text-accent text-sm mt-2">of 30 total</p>
-                </div>
-                <div className="card">
-                    <h3 className="text-neutral mb-2">IT Equipment</h3>
-                    <p className="text-3xl font-bold text-primary">18</p>
-                    <p className="text-accent text-sm mt-2">items available</p>
-                </div>
-            </div>
 
-            {/* Recent Activity and Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Activity */}
-                <div className="card">
-                    <h2 className="text-xl font-semibold text-primary mb-4">Recent Activity</h2>
-                    <div className="space-y-4">
-                        {recentActivities.map((activity, index) => (
-                            <div key={index} className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0">
-                                <div className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}></div>
-                                <div>
-                                    <p className="text-neutral">{activity.description}</p>
-                                    <p className="text-sm text-accent">{activity.time}</p>
+                {/* Recent Activity and Quick Actions */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Recent Activity */}
+                    <div className="card">
+                        <h2 className="text-xl font-semibold text-primary mb-4">Recent Activity</h2>
+                        <div className="space-y-4">
+                            {recentActivities.map((activity, index) => (
+                                <div key={index}
+                                     className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0">
+                                    <div className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}></div>
+                                    <div>
+                                        <p className="text-neutral">{activity.description}</p>
+                                        <p className="text-sm text-accent">{activity.time}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="card">
+                        <h2 className="text-xl font-semibold text-primary mb-14">Quick Actions</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            {quickActions.map((action, index) => (
+                                <a
+                                    key={index}
+                                    href={action.href}
+                                    className="btn-primary flex flex-col items-center justify-center text-center py-6 px-4 rounded-lg text-lg hover:scale-105 transition-transform"
+                                >
+                                    <i className={`fa ${action.icon} text-2xl mb-2`}></i>
+                                    {action.label}
+                                </a>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="card">
-                    <h2 className="text-xl font-semibold text-primary mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        {quickActions.map((action, index) => (
-                            <a
-                                key={index}
-                                href={action.href}
-                                className="btn-primary text-center"
-                            >
-                                {action.label}
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Upcoming Reservations */}
-            <div className="mt-8">
-                <h2 className="text-xl font-semibold text-primary mb-4">Upcoming Reservations</h2>
-                <div className="card">
-                    <table className="w-full">
-                        <thead>
-                        <tr className="border-b border-accent">
-                            <th className="text-left pb-3 text-neutral">Resource</th>
-                            <th className="text-left pb-3 text-neutral">Date</th>
-                            <th className="text-left pb-3 text-neutral">Time</th>
-                            <th className="text-left pb-3 text-neutral">Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {upcomingReservations.map((reservation, index) => (
-                            <tr key={index} className="border-b border-accent last:border-0">
-                                <td className="py-3 text-neutral">{reservation.resource}</td>
-                                <td className="py-3 text-neutral">{reservation.date}</td>
-                                <td className="py-3 text-neutral">{reservation.time}</td>
-                                <td className="py-3">
+                {/* Upcoming Reservations */}
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold text-primary mb-4">Upcoming Reservations</h2>
+                    <div className="card">
+                        <table className="w-full">
+                            <thead>
+                            <tr className="border-b border-accent">
+                                <th className="text-left pb-3 text-neutral">Resource</th>
+                                <th className="text-left pb-3 text-neutral">Date</th>
+                                <th className="text-left pb-3 text-neutral">Time</th>
+                                <th className="text-left pb-3 text-neutral">Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {upcomingReservations.map((reservation, index) => (
+                                <tr key={index} className="border-b border-accent last:border-0">
+                                    <td className="py-3 text-neutral">{reservation.resource}</td>
+                                    <td className="py-3 text-neutral">{reservation.date}</td>
+                                    <td className="py-3 text-neutral">{reservation.time}</td>
+                                    <td className="py-3">
                                         <span className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}>
                                             {reservation.status}
                                         </span>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ProtectedRoute>
     );
 }
 
@@ -127,19 +133,23 @@ const recentActivities = [
 const quickActions = [
     {
         label: "New Reservation",
-        href: "/reservations/new"
+        href: "/reservations/new",
+        icon: "fa-calendar-plus"
     },
     {
         label: "Order Equipment",
-        href: "/orders/new"
+        href: "/orders/new",
+        icon: "fa-laptop"
     },
     {
         label: "View Resources",
-        href: "/resources"
+        href: "/resources",
+        icon: "fa-boxes"
     },
     {
         label: "Report Issue",
-        href: "/support"
+        href: "/support",
+        icon: "fa-exclamation-circle"
     }
 ];
 
