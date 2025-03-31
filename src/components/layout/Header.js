@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "@/lib/UserContext";
 import ClientOnly from "@/components/ClientOnly";
 
 function HeaderContent() {
     const pathname = usePathname();
+    const router = useRouter();
     const { user, setUser } = useContext(UserContext);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
@@ -16,6 +17,14 @@ function HeaderContent() {
     const handleUserChange = (newUser) => {
         setUser(newUser);
         setDropdownOpen(false);
+        // Redirect based on the new user role
+        if (newUser === "Admin") {
+            router.push("/admin/dashboard");
+        } else if (newUser === "User") {
+            router.push("/user/dashboard");
+        } else {
+            router.push("/");
+        }
     };
 
     const renderNavLinks = () => {
@@ -105,7 +114,10 @@ function HeaderContent() {
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
                 setDropdownOpen(false);
             }
         };
@@ -123,14 +135,20 @@ function HeaderContent() {
                     <div className="flex items-center">
                         {/* Logo */}
                         <Link href="/" className="flex items-center">
-                            <img src="/logo.png" alt="TableMate Logo" className="h-8 w-8 mr-2" />
+                            <img
+                                src="/logo.png"
+                                alt="TableMate Logo"
+                                className="h-8 w-8 mr-2"
+                            />
                             <span className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
                 TableMate
               </span>
                         </Link>
                     </div>
                     {/* Navigation Links */}
-                    <div className="hidden sm:flex sm:space-x-8">{renderNavLinks()}</div>
+                    <div className="hidden sm:flex sm:space-x-8">
+                        {renderNavLinks()}
+                    </div>
                     {/* User Menu */}
                     <div className="relative flex items-center space-x-4">
                         {/* Notification Button */}
