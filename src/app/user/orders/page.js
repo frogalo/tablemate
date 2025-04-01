@@ -1,6 +1,48 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function UserOrders() {
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        async function fetchOrders() {
+            setLoading(true);
+            try {
+                // Fetching orders from the correct location
+                // const res = await fetch("/api/orders");
+                // if (!res.ok) {
+                //  throw new Error(`HTTP error! Status: ${res.status}`);
+                // }
+                // const data = await res.json();
+                // setOrders(data);
+
+                // Load data:
+                // await new Promise((resolve) => setTimeout(resolve, 1000));
+                setOrders(mockOrders);
+            } catch (err) {
+                console.error("Error fetching orders:", err);
+                setError("Failed to load orders. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchOrders();
+    }, []);
+
+    // The function for a proper formatting if its the case
+    const getStatusClass = (status) => {
+        const s = status.toLowerCase();
+        if (s === "delivered") return "bg-green-100 text-green-800";
+        if (s === "processing") return "bg-yellow-100 text-yellow-800";
+        if (s === "shipped") return "bg-blue-100 text-blue-800";
+        return "bg-gray-100 text-gray-800";
+    };
+
     return (
         <ProtectedRoute>
             <div className="fade-in">
@@ -12,64 +54,88 @@ export default function UserOrders() {
 
                 {/* Orders Table */}
                 <div className="card">
-                    <table className="w-full">
-                        <thead>
-                        <tr className="border-b border-accent">
-                            <th className="text-left pb-3 text-neutral">Order ID</th>
-                            <th className="text-left pb-3 text-neutral">Item</th>
-                            <th className="text-left pb-3 text-neutral">Date</th>
-                            <th className="text-left pb-3 text-neutral">Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {orders.map((order, index) => (
-                            <tr key={index} className="border-b border-accent last:border-0">
-                                <td className="py-3 text-neutral">{order.id}</td>
-                                <td className="py-3 text-neutral">{order.item}</td>
-                                <td className="py-3 text-neutral">{order.date}</td>
-                                <td className="py-3">
-                                    <span className={`px-2 py-1 rounded-full text-xs ${order.statusClass}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
+                    {loading && <p className="text-neutral">Loading orders...</p>}
+                    {error && <p className="text-red-500">{error}</p>}
+                    {!loading && !error && (
+                        <table className="w-full">
+                            <thead>
+                            <tr className="border-b border-accent">
+                                <th className="text-left pb-3 text-neutral">Order ID</th>
+                                <th className="text-left pb-3 text-neutral">Item</th>
+                                <th className="text-left pb-3 text-neutral">Date</th>
+                                <th className="text-left pb-3 text-neutral">Status</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {orders.map((order) => {
+                                let itemDetails = "";
+                                switch (order.itemType) {
+                                    case "MEAL":
+                                        itemDetails = `Meal: ${order.menuItem?.title} from ${order.restaurant?.name}`;
+                                        break;
+                                    case "IT_EQUIPMENT":
+                                        itemDetails = `IT: ${order.device?.name}`;
+                                        break;
+                                    default:
+                                        itemDetails = "Unknown Item";
+                                }
+
+                                return (
+                                    <tr key={order.id} className="border-b border-accent last:border-0">
+                                        <td className="py-3 text-neutral">ORD-{order.id}</td>
+                                        <td className="py-3 text-neutral">{itemDetails}</td>
+                                        <td className="py-3 text-neutral">{new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td className="py-3">
+                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusClass(order.status)}`}>
+                          {order.status}
+                        </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </ProtectedRoute>
     );
 }
 
-// Sample data
-const orders = [
+// This is sample mock data
+const mockOrders = [
     {
-        id: "ORD-001",
+        id: 1,
+        itemType: "IT_EQUIPMENT",
         item: "Laptop",
-        date: "22 Mar 2024",
+        createdAt: new Date(), //  time information.
         status: "Shipped",
-        statusClass: "bg-blue-100 text-blue-800"
+        device: {name: "Dell Laptop", }
     },
     {
-        id: "ORD-002",
-        item: "Monitor",
-        date: "20 Mar 2024",
+        id: 2,
+        itemType: "MEAL",
+        item: "Pizza",
+        createdAt: new Date(),
         status: "Pending",
-        statusClass: "bg-yellow-100 text-yellow-800"
+        restaurant: { name: "Pizza Palace"},
+        menuItem: {title: "Pepperoni Pizza"},
     },
     {
-        id: "ORD-003",
+        id: 3,
+        itemType: "IT_EQUIPMENT",
         item: "Keyboard",
-        date: "18 Mar 2024",
+        createdAt: new Date(),
         status: "Delivered",
-        statusClass: "bg-green-100 text-green-800"
+        device: {name: "Wireless Keyboard", }
     },
     {
-        id: "ORD-004",
-        item: "Mouse",
-        date: "15 Mar 2024",
+        id: 4,
+        itemType: "MEAL",
+        item: "Sushi",
+        createdAt: new Date(),
         status: "Cancelled",
-        statusClass: "bg-red-100 text-red-800"
+        restaurant: { name: "Sushi Time"},
+        menuItem: {title: "Salmon Roll"},
     }
 ];

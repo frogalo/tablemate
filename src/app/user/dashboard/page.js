@@ -1,15 +1,92 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import ReservationForm from "@/components/forms/ReservationForm";
+import OrderFoodForm from "@/components/forms/OrderFoodForm";
+import ITEquipmentForm from "@/components/forms/ITEquipmentForm";
+
+// Returns a background/text color class based on status
+function getStatusBg(status) {
+    const s = status.toLowerCase();
+    if (s === "delivered") return "bg-green-100 text-green-800";
+    if (s === "processing") return "bg-yellow-100 text-yellow-800";
+    if (s === "shipped") return "bg-blue-100 text-blue-800";
+    return "bg-gray-100 text-gray-800";
+}
 
 export default function Dashboard() {
+    // Core states
+    const [itOrders, setItOrders] = useState([]);
+    const [accessories, setAccessories] = useState([]);
+    const [restaurants, setRestaurants] = useState([]);
+
+    // Modal States
+    const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+    const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
+    const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
+
+    // To change modal states more easily
+    const [activeFormType, setActiveFormType] = useState(null);
+    const resetActiveFormType = () => setActiveFormType(null);
+
+    // Form Submit Handler
+    const handleFormSubmit = (formData, formName) => {
+        // Simulate sending data to backend, or use actual backend logic
+        console.log(`${formName} form data submitted:`, formData);
+        alert(`${formName} : Data submitted.`);
+    };
+
+    // Fetch functions
+    useEffect(() => {
+        async function fetchOrders() {
+            try {
+                const res = await fetch("/api/orders");
+                if (res.ok) {
+                    const data = await res.json();
+                    setItOrders(data);
+                }
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+        }
+
+        async function fetchAccessories() {
+            try {
+                const res = await fetch("/api/accessories");
+                if (res.ok) {
+                    const data = await res.json();
+                    setAccessories(data);
+                }
+            } catch (error) {
+                console.error("Error fetching accessories:", error);
+            }
+        }
+
+        async function fetchRestaurants() {
+            try {
+                const res = await fetch("/api/restaurants");
+                if (res.ok) {
+                    const data = await res.json();
+                    setRestaurants(data);
+                }
+            } catch (error) {
+                console.error("Error fetching restaurants:", error);
+            }
+        }
+
+        fetchOrders();
+        fetchAccessories();
+        fetchRestaurants();
+    }, []);
+
     return (
         <ProtectedRoute>
             <div className="fade-in">
                 {/* Dashboard Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-                    <p className="text-neutral mt-2">
-                        Welcome back to your workspace
-                    </p>
+                    <p className="text-neutral mt-2">Welcome back to your workspace</p>
                 </div>
 
                 {/* Stats Grid */}
@@ -70,7 +147,37 @@ export default function Dashboard() {
                             {quickActions.map((action, index) => (
                                 <a
                                     key={index}
-                                    href={action.href}
+                                    href="#" // Replace URLs to prevent automatic page reload
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        // Set the correct ActiveFormType based on button pressed
+                                        switch (action.label) {
+                                            case "Room Reservation":
+                                                setActiveFormType("ROOM");
+                                                setIsReservationModalOpen(true);
+                                                break;
+                                            case "Parking Spot Reservation":
+                                                setActiveFormType("PARKING");
+                                                setIsReservationModalOpen(true);
+                                                break;
+                                            case "Desk Reservation":
+                                                setActiveFormType("DESK");
+                                                setIsReservationModalOpen(true);
+                                                break;
+                                            case "Conference Room Reservation":
+                                                setActiveFormType("CONFERENCE_ROOM");
+                                                setIsReservationModalOpen(true);
+                                                break;
+                                            case "Order Food":
+                                                setIsFoodModalOpen(true);
+                                                break;
+                                            case "Order IT Equipment":
+                                                setIsEquipmentModalOpen(true);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }}
                                     className="btn-primary flex flex-col items-center justify-center text-center h-32 rounded-lg text-lg hover:scale-105 transition-transform"
                                 >
                                     <i className={`fa ${action.icon} text-2xl mb-2`}></i>
@@ -102,9 +209,7 @@ export default function Dashboard() {
                                     key={index}
                                     className="border-b border-accent last:border-0"
                                 >
-                                    <td className="py-3 text-neutral">
-                                        {reservation.resource}
-                                    </td>
+                                    <td className="py-3 text-neutral">{reservation.resource}</td>
                                     <td className="py-3 text-neutral">{reservation.date}</td>
                                     <td className="py-3 text-neutral">{reservation.time}</td>
                                     <td className="py-3">
@@ -120,16 +225,36 @@ export default function Dashboard() {
                         </table>
                     </div>
                 </div>
+
+                {/* Load Form Modals */}
+                <ReservationForm
+                    isOpen={isReservationModalOpen}
+                    onClose={() => {
+                        setIsReservationModalOpen(false);
+                        resetActiveFormType();
+                    }}
+                    onSubmit={(data) => handleFormSubmit(data, `ReservationForm - ${activeFormType}`)}
+                    resourceType={activeFormType} // The only different property to handle generic
+                />
+                <OrderFoodForm
+                    isOpen={isFoodModalOpen}
+                    onClose={() => setIsFoodModalOpen(false)}
+                    onSubmit={(data) => handleFormSubmit(data, "OrderFoodForm")}
+                />
+                <ITEquipmentForm
+                    isOpen={isEquipmentModalOpen}
+                    onClose={() => setIsEquipmentModalOpen(false)}
+                    onSubmit={(data) => handleFormSubmit(data, "ITEquipmentForm")}
+                />
             </div>
         </ProtectedRoute>
     );
 }
 
-// Sample data
 const recentActivities = [
     {
         description: "Conference room 'A' reserved",
-        time: "2 minutes ago",
+        time: "5 minutes ago",
         color: "bg-primary",
     },
     {
@@ -152,32 +277,32 @@ const recentActivities = [
 const quickActions = [
     {
         label: "Room Reservation",
-        href: "/reservations/new?type=room",
+        href: "#",
         icon: "fa-door-open",
     },
     {
         label: "Parking Spot Reservation",
-        href: "/reservations/new?type=parking",
+        href: "#",
         icon: "fa-parking",
     },
     {
         label: "Desk Reservation",
-        href: "/reservations/new?type=desk",
+        href: "#",
         icon: "fa-chair",
     },
     {
         label: "Conference Room Reservation",
-        href: "/reservations/new?type=conference",
+        href: "#",
         icon: "fa-building",
     },
     {
         label: "Order Food",
-        href: "/orders/new?type=food",
+        href: "#",
         icon: "fa-utensils",
     },
     {
         label: "Order IT Equipment",
-        href: "/orders/new?type=it",
+        href: "#",
         icon: "fa-laptop",
     },
 ];

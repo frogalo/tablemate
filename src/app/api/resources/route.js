@@ -1,9 +1,21 @@
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request) {
     try {
-        // Fetch resources. You may include related data if needed.
-        const resources = await prisma.resource.findMany();
+        // Extract type query parameter if present
+        const { searchParams } = new URL(request.url);
+        const type = searchParams.get("type");
+
+        let whereClause = {};
+        if (type) {
+            whereClause = { type: type };
+        }
+
+        // Fetch resources with or without type filter
+        const resources = await prisma.resource.findMany({
+            where: whereClause,
+        });
+
         return new Response(JSON.stringify(resources), {
             status: 200,
             headers: { "Content-Type": "application/json" },
