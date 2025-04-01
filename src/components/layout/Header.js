@@ -5,6 +5,7 @@ import {usePathname, useRouter} from "next/navigation";
 import {useContext, useState, useEffect, useRef} from "react";
 import {UserContext} from "@/lib/UserContext";
 import ClientOnly from "@/components/ClientOnly";
+import NotificationList from "@/components/NotificationList";
 
 function HeaderContent() {
     const pathname = usePathname();
@@ -13,13 +14,32 @@ function HeaderContent() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
+    const [showNotificationList, setShowNotificationList] = useState(false);
     const dropdownRef = useRef(null);
+    const notificationButtonRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (
+                notificationButtonRef.current &&
+                notificationButtonRef.current.contains(event.target)
+            ) {
+                return;
+            }
+
+            if (showNotificationList) {
+                setShowNotificationList(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [showNotificationList]);
 
     const handleUserChange = (newUser) => {
         setUser(newUser);
         setDropdownOpen(false);
         setMobileMenuOpen(false);
-        // Redirect based on the new user role
         if (newUser === "Admin") {
             router.push("/admin/dashboard");
         } else if (newUser === "User") {
@@ -125,21 +145,11 @@ function HeaderContent() {
                     >
                         Reservations
                     </Link>
-                    {/*<Link*/}
-                    {/*    href="/user/profile"*/}
-                    {/*    className={`nav-link ${*/}
-                    {/*        pathname === "/user/profile" ? "nav-link-active" : ""*/}
-                    {/*    }`}*/}
-                    {/*    onClick={() => setMobileMenuOpen(false)}*/}
-                    {/*>*/}
-                    {/*    Profile*/}
-                    {/*</Link>*/}
                 </>
             );
         }
     };
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -151,34 +161,37 @@ function HeaderContent() {
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () =>
-            document.removeEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
         <header className="gradient-header">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    {/* Logo */}
                     <div className="flex items-center">
                         <Link
-                            href={user === "Admin" ? "/admin/dashboard" : user === "User" ? "/user/dashboard" : "/"}
-                            className="flex items-center">
+                            href={
+                                user === "Admin"
+                                    ? "/admin/dashboard"
+                                    : user === "User"
+                                        ? "/user/dashboard"
+                                        : "/"
+                            }
+                            className="flex items-center"
+                        >
                             <img
                                 src="/logo.png"
                                 alt="TableMate Logo"
                                 className="h-8 w-8 mr-2"
                             />
                             <span className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
-                                 TableMate
-                            </span>
+                TableMate
+              </span>
                         </Link>
                     </div>
-                    {/* Desktop Navigation Links */}
                     <div className="hidden sm:flex sm:space-x-8">
                         {renderNavLinks()}
                     </div>
-                    {/* Hamburger Menu for Mobile */}
                     <div className="flex sm:hidden">
                         {user !== "SignedOut" && (
                             <button
@@ -213,13 +226,15 @@ function HeaderContent() {
                             </button>
                         )}
                     </div>
-                    {/* User Menu */}
+
                     <div className="relative flex items-center space-x-4">
                         {user !== "SignedOut" && (
                             <button
                                 type="button"
                                 className="relative bg-white/20 p-2 rounded-full hover:bg-white/30 transition cursor-pointer flex items-center"
                                 aria-label="Notifications"
+                                onClick={() => setShowNotificationList(!showNotificationList)}
+                                ref={notificationButtonRef}
                             >
                                 <svg
                                     className="h-6 w-6 text-white"
@@ -231,23 +246,26 @@ function HeaderContent() {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
-                      6.002 0 00-4-5.659V5a2 2 0 10-4
-                      0v.341C7.67 6.165 6 8.388 6 11v3.159c0
-                      .538-.214 1.055-.595 1.436L4 17h5m6
-                      0v1a3 3 0 11-6 0v-1m6 0H9"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                                     />
                                 </svg>
                                 {notifications > 0 && (
                                     <span
-                                        className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
-                                        aria-label={`${notifications} new notifications`}
-                                    >
+                                        className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {notifications}
                   </span>
                                 )}
                             </button>
                         )}
+                        {showNotificationList && (
+                            <NotificationList
+                                notifications={
+                                    user === "Admin" ? adminNotifications : userNotifications
+                                }
+                                onClose={() => setShowNotificationList(false)}
+                            />
+                        )}
+
                         {user === "SignedOut" ? (
                             <Link
                                 href="/login"
@@ -308,12 +326,6 @@ function HeaderContent() {
                         )}
                     </div>
                 </div>
-                {/* Mobile Navigation Menu */}
-                {mobileMenuOpen && (
-                    <div className="sm:hidden px-2 pt-2 pb-3 space-y-1">
-                        {renderNavLinks()}
-                    </div>
-                )}
             </nav>
         </header>
     );
@@ -326,3 +338,39 @@ export default function Header() {
         </ClientOnly>
     );
 }
+
+const userNotifications = [
+    {
+        id: 1,
+        title: "New Reservation",
+        message: "You have a new reservation for Conference Room A",
+        time: "5 minutes ago",
+    },
+    {
+        id: 2,
+        title: "Order Update",
+        message: "Your order #12345 has been shipped",
+        time: "1 hour ago",
+    },
+    {
+        id: 3,
+        title: "Desk Change",
+        message: "Your desk has been updated, it has a new monitor!.",
+        time: "2 hours ago",
+    },
+];
+
+const adminNotifications = [
+    {
+        id: 4,
+        title: "New User Registered",
+        message: "A new user, John Doe, has registered",
+        time: "30 minutes ago",
+    },
+    {
+        id: 5,
+        title: "Low Inventory",
+        message: "The inventory for laptops is running low",
+        time: "3 hours ago",
+    },
+];
