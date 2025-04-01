@@ -33,7 +33,7 @@ export default function LoginPage() {
                     </button>
                     <button
                         onClick={() => handleLogin("User")}
-                        className="btn-primary w-full py-3 text-lg rounded-lg bg-secondary hover:bg-primary hover:transform hover:scale-105 transition-transform cursor-pointer"
+                        className="btn-primary w-full py-3 text-lg rounded-lg hover:transform hover:scale-105 transition-transform cursor-pointer"
                     >
                         Login as User
                     </button>

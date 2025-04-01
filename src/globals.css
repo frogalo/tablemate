@@ -4,7 +4,7 @@
 /* Light theme variables */
 :root {
     --primary: #2980B9;
-    --secondary: #232e3b;
+    --secondary: #2C3E50;
     --light: #ECF0F1;
     --neutral: #7F8C8D;
     --accent: #E74C3C;
@@ -28,7 +28,7 @@
     --card-bg: #37474f; /* Darker Gray */
     --card-shadow: rgba(0, 0, 0, 0.4);
     --card-border: #607D8B;
-    --nav-link-color: #B0BEC5; /* Light Gray-Blue, same as neutral */
+    --nav-link-color: #e9eeef; /* Light Gray-Blue, same as neutral */
 }
 
 body {
