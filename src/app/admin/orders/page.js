@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import CompanyForm from "@/components/forms/CompanyForm";
+import RestaurantForm from "@/components/forms/RestaurantForm";
 import AccessoryForm from "@/components/forms/AccessoryForm";
 
 // Returns a background/text color class based on status
@@ -15,34 +15,66 @@ function getStatusBg(status) {
 }
 
 export default function AdminOrders() {
-    // Sample IT Accessories Orders data
-    const [itOrders, setItOrders] = useState([
-        { id: 1, user: "John Doe", item: "Laptop", status: "Delivered" },
-        { id: 2, user: "Jane Smith", item: "Monitor", status: "Processing" },
-        { id: 3, user: "Alice Jones", item: "Keyboard", status: "Shipped" },
-    ]);
+    // Local states, initially using sample data (which will be replaced by API getters)
+    const [itOrders, setItOrders] = useState([]);
+    const [accessories, setAccessories] = useState([]);
+    const [restaurants, setRestaurants] = useState([]);
 
-    // Sample IT Accessories Inventory items (with 'allocated' field)
-    const [accessories, setAccessories] = useState([
-        { id: 101, name: "Dell XXX Keyboard", quantity: 13, allocated: 4 },
-        { id: 102, name: "HP Pro Mouse", quantity: 7, allocated: 2 },
-    ]);
-
-    // Sample Food Delivery Companies data (each with an orderCount)
-    const [companies, setCompanies] = useState([
-        { id: 1, name: "Pizza Palace", email: "contact@pizzapalace.com", orderCount: 5 },
-        { id: 2, name: "Burger Bonanza", email: "info@burgerbonanza.com", orderCount: 8 },
-    ]);
-
+    // Modal state
     const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
     const [isAccessoryModalOpen, setIsAccessoryModalOpen] = useState(false);
 
-    const handleAddCompany = (newCompany) => {
-        setCompanies([...companies, { ...newCompany, orderCount: 0 }]);
+    // Fetch data from API GET endpoints on component mount
+    useEffect(() => {
+        async function fetchOrders() {
+            try {
+                const res = await fetch("/api/orders");
+                if (res.ok) {
+                    const data = await res.json();
+                    setItOrders(data);
+                }
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+        }
+
+        async function fetchAccessories() {
+            try {
+                const res = await fetch("/api/accessories");
+                if (res.ok) {
+                    const data = await res.json();
+                    setAccessories(data);
+                }
+            } catch (error) {
+                console.error("Error fetching accessories:", error);
+            }
+        }
+
+        async function fetchRestaurants() {
+            try {
+                const res = await fetch("/api/restaurants");
+                if (res.ok) {
+                    const data = await res.json();
+                    setRestaurants(data);
+                }
+            } catch (error) {
+                console.error("Error fetching restaurants:", error);
+            }
+        }
+
+        fetchOrders();
+        fetchAccessories();
+        fetchRestaurants();
+    }, []);
+
+    const handleAddCompany = (newRestaurant) => {
+        // Optionally, you can also post new restaurants to the API endpoint here.
+        setRestaurants([...restaurants, { ...newRestaurant, orderCount: 0 }]);
         setIsCompanyModalOpen(false);
     };
 
     const handleAddAccessory = (newAccessory) => {
+        // Optionally, you can also post new accessory to the API endpoint here.
         setAccessories([...accessories, newAccessory]);
         setIsAccessoryModalOpen(false);
     };
@@ -65,79 +97,82 @@ export default function AdminOrders() {
                     </h1>
                     <p className="text-neutral">
                         Manage IT accessories orders, monitor IT accessories inventory (with
-                        allocation details), and add new food delivery companies. Use this panel
-                        to keep track of orders, storage items, and their allocation to users.
+                        allocation details), and add new food delivery companies.
+                        Use this panel to keep track of orders, storage items, and their allocation to users.
                     </p>
                 </div>
-
                 {/* IT Accessories Orders Section */}
                 <section>
                     <h2 className="text-2xl font-semibold text-primary mb-4">
                         IT Accessories Orders
                     </h2>
-                    <div className="card overflow-x-auto">
-                        <table className="table-fixed w-full">
-                            <thead>
-                            <tr className="border-b border-accent">
-                                {/* Hide ID column on small screens */}
-                                <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
-                                    ID
-                                </th>
-                                <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
-                                    User
-                                </th>
-                                <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
-                                    Item
-                                </th>
-                                <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
-                                    Status
-                                </th>
-                                <th className="w-1/5 px-4 py-2 text-left text-neutral hidden sm:table-cell">
-                                    Actions
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {itOrders.map((order) => (
-                                <tr
-                                    key={order.id}
-                                    className="border-b border-accent last:border-0"
-                                >
-                                    <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
-                                        {order.id}
-                                    </td>
-                                    <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                        {order.user}
-                                    </td>
-                                    <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                        {order.item}
-                                    </td>
-                                    <td
-                                        className={`w-1/5 px-4 py-2 text-center ${getStatusBg(
-                                            order.status
-                                        )} whitespace-normal`}
-                                    >
-                                        {order.status}
-                                    </td>
-                                    <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
-                                        <button
-                                            onClick={() => handleEditItem(order, "order")}
-                                            className="mx-1 text-blue-500 hover:text-blue-700"
-                                        >
-                                            <i className="fa fa-pencil"></i>
-                                        </button>
-                                        <button
-                                            onClick={() => handleRemoveItem(order, "order")}
-                                            className="mx-1 text-red-500 hover:text-red-700"
-                                        >
-                                            <i className="fa fa-trash"></i>
-                                        </button>
-                                    </td>
+                    {itOrders.length > 0 ? (
+                        <div className="card overflow-x-auto">
+                            <table className="table-fixed w-full">
+                                <thead>
+                                <tr className="border-b border-accent">
+                                    {/* Hide ID column on small screens */}
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
+                                        ID
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                        User
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                        Item
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                        Status
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden sm:table-cell">
+                                        Actions
+                                    </th>
                                 </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                {itOrders.map((order) => (
+                                    <tr
+                                        key={order.id}
+                                        className="border-b border-accent last:border-0"
+                                    >
+                                        <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
+                                            {order.id}
+                                        </td>
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                                            {order.user}
+                                        </td>
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                                            {order.item}
+                                        </td>
+                                        <td
+                                            className={`w-1/5 px-4 py-2 text-center ${getStatusBg(
+                                                order.status
+                                            )} whitespace-normal`}
+                                        >
+                                            {order.status}
+                                        </td>
+                                        <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                                            <button
+                                                onClick={() => handleEditItem(order, "order")}
+                                                className="mx-1 text-blue-500 hover:text-blue-700"
+                                            >
+                                                <i className="fa fa-pencil"></i>
+                                            </button>
+                                            <button
+                                                onClick={() => handleRemoveItem(order, "order")}
+                                                className="mx-1 text-red-500 hover:text-red-700"
+                                            >
+                                                <i className="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p className="text-neutral">No orders yet.</p>
+                    )}
                 </section>
 
                 {/* IT Accessories Inventory Section */}
@@ -219,20 +254,20 @@ export default function AdminOrders() {
                     )}
                 </section>
 
-                {/* Food Delivery Companies Section */}
+                {/* Food Delivery Companies Section (Restaurants) */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-primary">
-                            Food Delivery Companies
+                            Restaurants
                         </h2>
                         <button
                             onClick={() => setIsCompanyModalOpen(true)}
                             className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                         >
-                            Add New Company
+                            Add New Restaurant
                         </button>
                     </div>
-                    {companies.length > 0 ? (
+                    {restaurants.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -255,32 +290,32 @@ export default function AdminOrders() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {companies.map((company) => (
+                                {restaurants.map((restaurant) => (
                                     <tr
-                                        key={company.id}
+                                        key={restaurant.id}
                                         className="border-b border-accent last:border-0"
                                     >
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
-                                            {company.id}
+                                            {restaurant.id}
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {company.name}
+                                            {restaurant.name}
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {company.email}
+                                            {restaurant.email}
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {company.orderCount}
+                                            {restaurant.orderCount}
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
-                                                onClick={() => handleEditItem(company, "company")}
+                                                onClick={() => handleEditItem(restaurant, "restaurant")}
                                                 className="mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
-                                                onClick={() => handleRemoveItem(company, "company")}
+                                                onClick={() => handleRemoveItem(restaurant, "restaurant")}
                                                 className="mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
@@ -292,7 +327,7 @@ export default function AdminOrders() {
                             </table>
                         </div>
                     ) : (
-                        <p className="text-neutral">No companies added yet.</p>
+                        <p className="text-neutral">No restaurants added yet.</p>
                     )}
                 </section>
 
@@ -302,7 +337,7 @@ export default function AdminOrders() {
                     onClose={() => setIsAccessoryModalOpen(false)}
                     onSave={handleAddAccessory}
                 />
-                <CompanyForm
+                <RestaurantForm
                     isOpen={isCompanyModalOpen}
                     onClose={() => setIsCompanyModalOpen(false)}
                     onSave={handleAddCompany}

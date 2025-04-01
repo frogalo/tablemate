@@ -39,6 +39,7 @@ model Reservation {
   user       User     @relation(fields: [userId], references: [id])
   resource   Resource @relation(fields: [resourceId], references: [id])
 }
+
 model Delivery {
   id        Int      @id @default(autoincrement())
   orderId   Int      @unique
@@ -76,4 +77,31 @@ model Notification {
   createdAt DateTime @default(now())
   read      Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
+}
+
+// New model: Restaurant (Food Deliverer)
+model Restaurant {
+  id         Int        @id @default(autoincrement())
+  name       String
+  email      String?
+  orderCount Int        @default(0)
+  menu       MenuItem[]
+}
+
+model MenuItem {
+  id           Int         @id @default(autoincrement())
+  title        String
+  price        Float
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+}
+
+// New model: ITDevice (IT Equipment)
+model ITDevice {
+  id        Int  @id @default(autoincrement())
+  name      String
+  quantity  Int
+  allocated Int  @default(0)
+  // Similarly, orders with itemType "IT_EQUIPMENT" can be related to this model via business logic.
+  // orders Order[] @relation("ItEquipmentOrders")
 }
