@@ -6,14 +6,6 @@ export default function AdminDashboard() {
     return (
         <ProtectedRoute>
             <div className="fade-in">
-                {/* Dashboard Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-primary">Admin Dashboard</h1>
-                    <p className="text-neutral mt-2">
-                        Welcome to your admin workspace
-                    </p>
-                </div>
-
                 {/* Statistics Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div className="card">
@@ -122,6 +114,35 @@ export default function AdminDashboard() {
                         </table>
                     </div>
                 </div>
+
+                {/* Upcoming Orders */}
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold text-primary mb-4">
+                        Upcoming Orders
+                    </h2>
+                    <div className="card">
+                        <table className="w-full">
+                            <thead>
+                            <tr className="border-b border-accent">
+                                <th className="text-left pb-3 text-neutral">User</th>
+                                <th className="text-left pb-3 text-neutral">Item</th>
+                                <th className="text-left pb-3 text-neutral">Type</th>
+                                <th className="text-left pb-3 text-neutral">Delivery Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {adminUpcomingOrders.map((order, index) => (
+                                <tr key={index} className="border-b border-accent last:border-0">
+                                    <td className="py-3 text-neutral">{order.user}</td>
+                                    <td className="py-3 text-neutral">{order.item}</td>
+                                    <td className="py-3 text-neutral">{order.type}</td>
+                                    <td className="py-3 text-neutral">{order.deliveryDate}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </ProtectedRoute>
     );
@@ -204,5 +225,26 @@ const adminUpcomingReservations = [
         time: "11:00 - 12:00",
         status: "Confirmed",
         statusClass: "bg-green-100 text-green-800",
+    },
+];
+
+const adminUpcomingOrders = [
+    {
+        user: "John Doe",
+        item: "Dell Monitor",
+        type: "IT Equipment",
+        deliveryDate: "2024-03-22",
+    },
+    {
+        user: "Jane Smith",
+        item: "Lunch Combo",
+        type: "Meal",
+        deliveryDate: "2024-03-23",
+    },
+    {
+        user: "Mike Johnson",
+        item: "Wireless Keyboard",
+        type: "IT Equipment",
+        deliveryDate: "2024-03-24",
     },
 ];
