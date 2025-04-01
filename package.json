@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
     "scripts": {
-      "dev:prisma": "prisma generate --schema=prisma/schema.dev.prisma",
-      "dev": "npm run dev:prisma && next dev",
-      "build:prisma": "prisma generate --schema=prisma/schema.prod.prisma",
-      "build": "prisma generate && next build",
-      "postinstall": "prisma generate --schema=prisma/schema.prod.prisma",
+      "postinstall": "prisma generate",
+      "dev": "next dev --turbopack",
+      "build": "npx prisma generate && next build",
+      "start": "next start",
       "lint": "next lint"
     },
   "dependencies": {
