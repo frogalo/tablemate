@@ -5,6 +5,15 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import CompanyForm from "@/components/forms/CompanyForm";
 import AccessoryForm from "@/components/forms/AccessoryForm";
 
+// Returns a background/text color class based on status
+function getStatusBg(status) {
+    const s = status.toLowerCase();
+    if (s === "delivered") return "bg-green-100 text-green-800";
+    if (s === "processing") return "bg-yellow-100 text-yellow-800";
+    if (s === "shipped") return "bg-blue-100 text-blue-800";
+    return "bg-gray-100 text-gray-800";
+}
+
 export default function AdminOrders() {
     // Sample IT Accessories Orders data
     const [itOrders, setItOrders] = useState([
@@ -13,13 +22,13 @@ export default function AdminOrders() {
         { id: 3, user: "Alice Jones", item: "Keyboard", status: "Shipped" },
     ]);
 
-    // Sample IT Accessories Inventory items (4 columns: ID, Accessory Name, In Storage, With Users)
+    // Sample IT Accessories Inventory items (with 'allocated' field)
     const [accessories, setAccessories] = useState([
         { id: 101, name: "Dell XXX Keyboard", quantity: 13, allocated: 4 },
         { id: 102, name: "HP Pro Mouse", quantity: 7, allocated: 2 },
     ]);
 
-    // Sample Food Delivery Companies data (4 columns: ID, Name, Email, Orders)
+    // Sample Food Delivery Companies data (each with an orderCount)
     const [companies, setCompanies] = useState([
         { id: 1, name: "Pizza Palace", email: "contact@pizzapalace.com", orderCount: 5 },
         { id: 2, name: "Burger Bonanza", email: "info@burgerbonanza.com", orderCount: 8 },
@@ -29,7 +38,6 @@ export default function AdminOrders() {
     const [isAccessoryModalOpen, setIsAccessoryModalOpen] = useState(false);
 
     const handleAddCompany = (newCompany) => {
-        // New company order count starts at 0
         setCompanies([...companies, { ...newCompany, orderCount: 0 }]);
         setIsCompanyModalOpen(false);
     };
@@ -37,6 +45,15 @@ export default function AdminOrders() {
     const handleAddAccessory = (newAccessory) => {
         setAccessories([...accessories, newAccessory]);
         setIsAccessoryModalOpen(false);
+    };
+
+    // Sample handlers for edit and remove actions
+    const handleEditItem = (item, type) => {
+        console.log("Edit", type, item);
+    };
+
+    const handleRemoveItem = (item, type) => {
+        console.log("Remove", type, item);
     };
 
     return (
@@ -48,9 +65,8 @@ export default function AdminOrders() {
                     </h1>
                     <p className="text-neutral">
                         Manage IT accessories orders, monitor IT accessories inventory (with
-                        allocation details), and add new food delivery companies. Use this
-                        panel to keep track of orders, storage items, and their allocation to
-                        users.
+                        allocation details), and add new food delivery companies. Use this panel
+                        to keep track of orders, storage items, and their allocation to users.
                     </p>
                 </div>
 
@@ -59,14 +75,26 @@ export default function AdminOrders() {
                     <h2 className="text-2xl font-semibold text-primary mb-4">
                         IT Accessories Orders
                     </h2>
-                    <div className="card">
+                    <div className="card overflow-x-auto">
                         <table className="table-fixed w-full">
                             <thead>
                             <tr className="border-b border-accent">
-                                <th className="w-1/4 px-4 py-2 text-left text-neutral">ID</th>
-                                <th className="w-1/4 px-4 py-2 text-left text-neutral">User</th>
-                                <th className="w-1/4 px-4 py-2 text-left text-neutral">Item</th>
-                                <th className="w-1/4 px-4 py-2 text-left text-neutral">Status</th>
+                                {/* Hide ID column on small screens */}
+                                <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
+                                    ID
+                                </th>
+                                <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                    User
+                                </th>
+                                <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                    Item
+                                </th>
+                                <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                    Status
+                                </th>
+                                <th className="w-1/5 px-4 py-2 text-left text-neutral hidden sm:table-cell">
+                                    Actions
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -75,10 +103,36 @@ export default function AdminOrders() {
                                     key={order.id}
                                     className="border-b border-accent last:border-0"
                                 >
-                                    <td className="w-1/4 px-4 py-2 text-neutral">{order.id}</td>
-                                    <td className="w-1/4 px-4 py-2 text-neutral">{order.user}</td>
-                                    <td className="w-1/4 px-4 py-2 text-neutral">{order.item}</td>
-                                    <td className="w-1/4 px-4 py-2 text-neutral">{order.status}</td>
+                                    <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
+                                        {order.id}
+                                    </td>
+                                    <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                                        {order.user}
+                                    </td>
+                                    <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                                        {order.item}
+                                    </td>
+                                    <td
+                                        className={`w-1/5 px-4 py-2 text-center ${getStatusBg(
+                                            order.status
+                                        )} whitespace-normal`}
+                                    >
+                                        {order.status}
+                                    </td>
+                                    <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                                        <button
+                                            onClick={() => handleEditItem(order, "order")}
+                                            className="mx-1 text-blue-500 hover:text-blue-700"
+                                        >
+                                            <i className="fa fa-pencil"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => handleRemoveItem(order, "order")}
+                                            className="mx-1 text-red-500 hover:text-red-700"
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>
@@ -100,19 +154,24 @@ export default function AdminOrders() {
                         </button>
                     </div>
                     {accessories.length > 0 ? (
-                        <div className="card">
+                        <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">ID</th>
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
+                                        ID
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
                                         Accessory Name
                                     </th>
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
                                         In Storage
                                     </th>
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
                                         With Users
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden sm:table-cell">
+                                        Actions
                                     </th>
                                 </tr>
                                 </thead>
@@ -122,17 +181,31 @@ export default function AdminOrders() {
                                         key={accessory.id}
                                         className="border-b border-accent last:border-0"
                                     >
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
                                             {accessory.id}
                                         </td>
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
                                             {accessory.name}
                                         </td>
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
                                             {accessory.quantity}
                                         </td>
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
                                             {accessory.allocated || 0}
+                                        </td>
+                                        <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                                            <button
+                                                onClick={() => handleEditItem(accessory, "accessory")}
+                                                className="mx-1 text-blue-500 hover:text-blue-700"
+                                            >
+                                                <i className="fa fa-pencil"></i>
+                                            </button>
+                                            <button
+                                                onClick={() => handleRemoveItem(accessory, "accessory")}
+                                                className="mx-1 text-red-500 hover:text-red-700"
+                                            >
+                                                <i className="fa fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -160,14 +233,25 @@ export default function AdminOrders() {
                         </button>
                     </div>
                     {companies.length > 0 ? (
-                        <div className="card">
+                        <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">ID</th>
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">Name</th>
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">Email</th>
-                                    <th className="w-1/4 px-4 py-2 text-left text-neutral">Orders</th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
+                                        ID
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                        Name
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                        Email
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral whitespace-normal">
+                                        Orders
+                                    </th>
+                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden sm:table-cell">
+                                        Actions
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -176,17 +260,31 @@ export default function AdminOrders() {
                                         key={company.id}
                                         className="border-b border-accent last:border-0"
                                     >
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
                                             {company.id}
                                         </td>
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
                                             {company.name}
                                         </td>
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
                                             {company.email}
                                         </td>
-                                        <td className="w-1/4 px-4 py-2 text-neutral">
+                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
                                             {company.orderCount}
+                                        </td>
+                                        <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                                            <button
+                                                onClick={() => handleEditItem(company, "company")}
+                                                className="mx-1 text-blue-500 hover:text-blue-700"
+                                            >
+                                                <i className="fa fa-pencil"></i>
+                                            </button>
+                                            <button
+                                                onClick={() => handleRemoveItem(company, "company")}
+                                                className="mx-1 text-red-500 hover:text-red-700"
+                                            >
+                                                <i className="fa fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
