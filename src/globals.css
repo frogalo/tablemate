@@ -1,20 +1,43 @@
 @import 'tailwindcss';
 @import '@fortawesome/fontawesome-free/css/all.css';
 
+/* Light theme variables */
 :root {
-    --primary: #2980B9;    /* Blue */
-    --secondary: #2C3E50;  /* Dark Blue */
-    --light: #ECF0F1;      /* Light Gray */
-    --neutral: #7F8C8D;    /* Gray */
-    --accent: #E74C3C;     /* Red */
+    --primary: #2980B9;
+    --secondary: #232e3b;
+    --light: #ECF0F1;
+    --neutral: #7F8C8D;
+    --accent: #E74C3C;
+    --body-bg: #ECF0F1; /* Light gray */
+    --text-color: #7F8C8D; /* Gray */
+    --card-bg: white;
+    --card-shadow: rgba(126, 140, 140, 0.1);
+    --card-border: #7F8C8D;
+    --nav-link-color: var(--light); /* Light gray, same as current */
+}
+
+/* Dark theme variables */
+:root[data-theme='dark'] {
+    --primary: #4db6ac; /* Teal */
+    --secondary: #37474f; /* Darker Gray */
+    --light: #455A64; /* Medium Gray */
+    --neutral: #B0BEC5; /* Light Gray-Blue */
+    --accent: #ff7043; /* Orange */
+    --body-bg: #263238; /* Dark Blue-Gray */
+    --text-color: #B0BEC5; /* Light Gray-Blue */
+    --card-bg: #37474f; /* Darker Gray */
+    --card-shadow: rgba(0, 0, 0, 0.4);
+    --card-border: #607D8B;
+    --nav-link-color: #B0BEC5; /* Light Gray-Blue, same as neutral */
 }
 
 body {
-    color: var(--neutral);
-    background: var(--light);
+    color: var(--text-color);
+    background: var(--body-bg);
     overflow-x: hidden;
     overflow-y: auto;
     min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .main-container {
@@ -48,7 +71,7 @@ body {
     display: inline-flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    color: var(--light);
+    color: var(--nav-link-color); /* Use the new CSS variable */
     opacity: 0.8;
     border-bottom: 2px solid transparent;
     transition: all 0.2s;
@@ -66,16 +89,16 @@ body {
 }
 
 .card {
-    background-color: white;
+    background-color: var(--card-bg);
     border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(126, 140, 140, 0.1);
+    box-shadow: 0 4px 6px -1px var(--card-shadow);
     padding: 1.5rem;
-    border: 1px solid var(--neutral);
-    transition: box-shadow 0.3s;
+    border: 1px solid var(--card-border);
+    transition: box-shadow 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
 .card:hover {
-    box-shadow: 0 10px 15px -3px rgba(126, 140, 140, 0.2);
+    box-shadow: 0 10px 15px -3px var(--card-shadow);
 }
 
 .btn-primary {

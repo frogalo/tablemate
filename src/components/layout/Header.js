@@ -17,6 +17,32 @@ function HeaderContent() {
     const [showNotificationList, setShowNotificationList] = useState(false);
     const dropdownRef = useRef(null);
     const notificationButtonRef = useRef(null);
+    const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
+
+    // Function to toggle the theme
+    const toggleTheme = () => {
+        setIsDarkMode((prevMode) => !prevMode); // Toggle the mode
+    };
+
+    // Load the theme from localStorage on component mount
+    useEffect(() => {
+        const storedTheme = localStorage.getItem("theme");
+        if (storedTheme === "dark") {
+            setIsDarkMode(true);
+        }
+    }, []);
+
+    // Update the data-theme attribute on the root element (<html>) and save to localStorage
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (isDarkMode) {
+            root.setAttribute("data-theme", "dark");
+            localStorage.setItem("theme", "dark"); // Save to localStorage
+        } else {
+            root.removeAttribute("data-theme");
+            localStorage.setItem("theme", "light"); // Save to localStorage
+        }
+    }, [isDarkMode]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -267,25 +293,47 @@ function HeaderContent() {
                         )}
 
                         {user === "SignedOut" ? (
-                            <Link
-                                href="/login"
-                                className="nav-link rounded-full flex items-center bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30 transition cursor-pointer"
-                            >
-                                Login
-                            </Link>
+                            <>
+                                {/* Dark Mode Toggle */}
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={isDarkMode}
+                                        onChange={toggleTheme}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                                <Link
+                                    href="/login"
+                                    className="nav-link rounded-full flex items-center bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30 transition cursor-pointer"
+                                >
+                                    Login
+                                </Link>
+                            </>
                         ) : (
-                            <button
-                                type="button"
-                                className="nav-link rounded-full flex items-center"
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                            >
-                                <span className="sr-only">Open user menu</span>
-                                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-white/20">
-                  <span className="text-white text-sm font-medium">
-                    {user === "Admin" ? "AD" : "US"}
-                  </span>
-                                </div>
-                            </button>
+                            <>
+                                {/* Dark Mode Toggle */}
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={isDarkMode}
+                                        onChange={toggleTheme}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                                <button
+                                    type="button"
+                                    className="nav-link rounded-full flex items-center"
+                                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                                >
+                                    <span className="sr-only">Open user menu</span>
+                                    <div className="h-8 w-8 rounded-full flex items-center justify-center bg-white/20">
+                    <span className="text-white text-sm font-medium">
+                      {user === "Admin" ? "AD" : "US"}
+                    </span>
+                                    </div>
+                                </button>
+                            </>
                         )}
                         {dropdownOpen && user !== "SignedOut" && (
                             <div
