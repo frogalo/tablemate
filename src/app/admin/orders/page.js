@@ -16,11 +16,35 @@ function getStatusBg(status) {
 }
 
 export default function AdminOrders() {
+    // Mockup data for IT Orders
+    const initialItOrders = [
+        {
+            id: "1001",
+            user: "john.doe@example.com",
+            item: "Laptop ",
+            status: "Processing",
+        },
+        {
+            id: "1002",
+            user: "jane.smith@example.com",
+            item: "Monitor ",
+            status: "Shipped",
+        },
+        {
+            id: "1003",
+            user: "david.lee@example.com",
+            item: "Keyboard ",
+            status: "Delivered",
+        },
+    ];
+
     // Local states (using as placeholders until replaced by actual API data)
-    const [itOrders, setItOrders] = useState([]);
+    const [itOrders, setItOrders] = useState(initialItOrders);
     const [accessories, setAccessories] = useState([]);
     const [restaurants, setRestaurants] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loadingOrders, setLoadingOrders] = useState(true);
+    const [loadingAccessories, setLoadingAccessories] = useState(true);
+    const [loadingRestaurants, setLoadingRestaurants] = useState(true);
 
     // Modal state
     const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
@@ -60,7 +84,9 @@ export default function AdminOrders() {
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
-                setLoading(false);
+                setLoadingOrders(false);
+                setLoadingAccessories(false);
+                setLoadingRestaurants(false);
             }
         }
         fetchData();
@@ -139,17 +165,6 @@ export default function AdminOrders() {
         }
     };
 
-    // Show a loading skeleton until data is loaded.
-    if (loading) {
-        return (
-            <ProtectedRoute>
-                <div className="flex items-center justify-center h-full"> {/* Center the spinner */}
-                    <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
-                </div>
-            </ProtectedRoute>
-        );
-    }
-
     return (
         <ProtectedRoute>
             <div className="p-8 space-y-12">
@@ -163,12 +178,17 @@ export default function AdminOrders() {
                         to keep track of orders, storage items, and their allocation to users.
                     </p>
                 </div>
+
                 {/* IT Accessories Orders Section */}
                 <section>
                     <h2 className="text-2xl font-semibold text-primary mb-4">
                         IT Accessories Orders
                     </h2>
-                    {itOrders.length > 0 ? (
+                    {loadingOrders ? (
+                        <div className="flex items-center justify-center">
+                            <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
+                        </div>
+                    ) : itOrders.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -237,6 +257,7 @@ export default function AdminOrders() {
                         <p className="text-neutral">No orders yet.</p>
                     )}
                 </section>
+
                 {/* IT Accessories Inventory Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
@@ -253,7 +274,11 @@ export default function AdminOrders() {
                             Add New IT Accessory
                         </button>
                     </div>
-                    {accessories.length > 0 ? (
+                    {loadingAccessories ? (
+                        <div className="flex items-center justify-center">
+                            <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
+                        </div>
+                    ) : accessories.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -320,6 +345,7 @@ export default function AdminOrders() {
                         </p>
                     )}
                 </section>
+
                 {/* Confirmation modal for deleting an accessory */}
                 {accessoryToDelete && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
@@ -357,6 +383,7 @@ export default function AdminOrders() {
                         </div>
                     </div>
                 )}
+
                 {/* Restaurants Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
@@ -373,7 +400,11 @@ export default function AdminOrders() {
                             Add New Restaurant
                         </button>
                     </div>
-                    {restaurants.length > 0 ? (
+                    {loadingRestaurants ? (
+                        <div className="flex items-center justify-center">
+                            <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
+                        </div>
+                    ) : restaurants.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -441,6 +472,7 @@ export default function AdminOrders() {
                         <p className="text-neutral">No restaurants added yet.</p>
                     )}
                 </section>
+
                 {/* Confirmation modal for deleting a restaurant */}
                 {restaurantToDelete && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
