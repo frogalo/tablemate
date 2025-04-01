@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RestaurantForm from "@/components/forms/RestaurantForm";
 import AccessoryForm from "@/components/forms/AccessoryForm";
-import Loading from "@/components/ui/Loading";
+import { PulseLoader } from "react-spinners"; // Import PulseLoader
 
 // Returns a background/text color class based on status
 function getStatusBg(status) {
@@ -39,12 +39,11 @@ export default function AdminOrders() {
         async function fetchData() {
             try {
                 // Fetch all data concurrently.
-                const [ordersRes, accessoriesRes, restaurantsRes] =
-                    await Promise.all([
-                        fetch("/api/orders"),
-                        fetch("/api/accessories"),
-                        fetch("/api/restaurants"),
-                    ]);
+                const [ordersRes, accessoriesRes, restaurantsRes] = await Promise.all([
+                    fetch("/api/orders"),
+                    fetch("/api/accessories"),
+                    fetch("/api/restaurants"),
+                ]);
 
                 if (ordersRes.ok) {
                     const ordersData = await ordersRes.json();
@@ -69,10 +68,7 @@ export default function AdminOrders() {
 
     const handleAddCompany = (newRestaurant) => {
         // For creating a new restaurant.
-        setRestaurants([
-            ...restaurants,
-            { ...newRestaurant, orderCount: 0 },
-        ]);
+        setRestaurants([...restaurants, { ...newRestaurant, orderCount: 0 }]);
         setIsCompanyModalOpen(false);
     };
 
@@ -81,9 +77,7 @@ export default function AdminOrders() {
         // If editing, update the accessory list accordingly.
         if (accessoryToEdit) {
             setAccessories(
-                accessories.map((acc) =>
-                    acc.id === newAccessory.id ? newAccessory : acc
-                )
+                accessories.map((acc) => (acc.id === newAccessory.id ? newAccessory : acc))
             );
             setAccessoryToEdit(null);
         } else {
@@ -132,16 +126,10 @@ export default function AdminOrders() {
 
             // Update local state if deletion was successful.
             if (type === "restaurant") {
-                setRestaurants(
-                    restaurants.filter(
-                        (restaurant) => restaurant.id !== item.id
-                    )
-                );
+                setRestaurants(restaurants.filter((restaurant) => restaurant.id !== item.id));
             } else if (type === "accessory") {
                 setAccessories(
-                    accessories.filter(
-                        (accessory) => accessory.id !== item.id
-                    )
+                    accessories.filter((accessory) => accessory.id !== item.id)
                 );
             } else if (type === "order") {
                 setItOrders(itOrders.filter((order) => order.id !== item.id));
@@ -155,7 +143,9 @@ export default function AdminOrders() {
     if (loading) {
         return (
             <ProtectedRoute>
-                <Loading />
+                <div className="flex items-center justify-center h-full"> {/* Center the spinner */}
+                    <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
+                </div>
             </ProtectedRoute>
         );
     }
@@ -306,18 +296,14 @@ export default function AdminOrders() {
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    handleEditItem(accessory, "accessory")
-                                                }
+                                                onClick={() => handleEditItem(accessory, "accessory")}
                                                 className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    setAccessoryToDelete(accessory)
-                                                }
+                                                onClick={() => setAccessoryToDelete(accessory)}
                                                 className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
@@ -353,7 +339,7 @@ export default function AdminOrders() {
                                 <button
                                     type="button"
                                     onClick={() => setAccessoryToDelete(null)}
-                                    className="cursor-pointer px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
+                                    className="px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
                                 >
                                     Cancel
                                 </button>
@@ -363,7 +349,7 @@ export default function AdminOrders() {
                                         handleRemoveItem(accessoryToDelete, "accessory");
                                         setAccessoryToDelete(null);
                                     }}
-                                    className="cursor-pointer px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                                    className="cursor-pointer  px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
                                 >
                                     Delete
                                 </button>
@@ -440,9 +426,7 @@ export default function AdminOrders() {
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    setRestaurantToDelete(restaurant)
-                                                }
+                                                onClick={() => setRestaurantToDelete(restaurant)}
                                                 className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
