@@ -11,12 +11,14 @@ function HeaderContent() {
     const router = useRouter();
     const { user, setUser } = useContext(UserContext);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
     const dropdownRef = useRef(null);
 
     const handleUserChange = (newUser) => {
         setUser(newUser);
         setDropdownOpen(false);
+        setMobileMenuOpen(false);
         // Redirect based on the new user role
         if (newUser === "Admin") {
             router.push("/admin/dashboard");
@@ -40,32 +42,54 @@ function HeaderContent() {
                         className={`nav-link ${
                             pathname === "/admin/dashboard" ? "nav-link-active" : ""
                         }`}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Dashboard
-                    </Link>
-                    <Link
-                        href="/admin/reports"
-                        className={`nav-link ${
-                            pathname === "/admin/reports" ? "nav-link-active" : ""
-                        }`}
-                    >
-                        Reports
-                    </Link>
-                    <Link
-                        href="/admin/reservations"
-                        className={`nav-link ${
-                            pathname === "/admin/reservations" ? "nav-link-active" : ""
-                        }`}
-                    >
-                        Reservations
                     </Link>
                     <Link
                         href="/admin/users"
                         className={`nav-link ${
                             pathname === "/admin/users" ? "nav-link-active" : ""
                         }`}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Users
+                    </Link>
+                    <Link
+                        href="/admin/reservations"
+                        className={`nav-link ${
+                            pathname === "/admin/reservations" ? "nav-link-active" : ""
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        Reservations
+                    </Link>
+                    <Link
+                        href="/admin/orders"
+                        className={`nav-link ${
+                            pathname === "/admin/orders" ? "nav-link-active" : ""
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        Orders
+                    </Link>
+                    <Link
+                        href="/admin/reports"
+                        className={`nav-link ${
+                            pathname === "/admin/reports" ? "nav-link-active" : ""
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        Reports
+                    </Link>
+                    <Link
+                        href="/admin/notifications"
+                        className={`nav-link ${
+                            pathname === "/admin/notifications" ? "nav-link-active" : ""
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        Notifications
                     </Link>
                 </>
             );
@@ -79,6 +103,7 @@ function HeaderContent() {
                         className={`nav-link ${
                             pathname === "/user/dashboard" ? "nav-link-active" : ""
                         }`}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Dashboard
                     </Link>
@@ -87,6 +112,7 @@ function HeaderContent() {
                         className={`nav-link ${
                             pathname === "/user/orders" ? "nav-link-active" : ""
                         }`}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Orders
                     </Link>
@@ -95,6 +121,7 @@ function HeaderContent() {
                         className={`nav-link ${
                             pathname === "/user/reservations" ? "nav-link-active" : ""
                         }`}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Reservations
                     </Link>
@@ -103,6 +130,7 @@ function HeaderContent() {
                         className={`nav-link ${
                             pathname === "/user/profile" ? "nav-link-active" : ""
                         }`}
+                        onClick={() => setMobileMenuOpen(false)}
                     >
                         Profile
                     </Link>
@@ -123,17 +151,16 @@ function HeaderContent() {
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
+        return () =>
             document.removeEventListener("mousedown", handleClickOutside);
-        };
     }, []);
 
     return (
         <header className="gradient-header">
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
+                    {/* Logo */}
                     <div className="flex items-center">
-                        {/* Logo */}
                         <Link href="/" className="flex items-center">
                             <img
                                 src="/logo.png"
@@ -145,13 +172,47 @@ function HeaderContent() {
               </span>
                         </Link>
                     </div>
-                    {/* Navigation Links */}
+                    {/* Desktop Navigation Links */}
                     <div className="hidden sm:flex sm:space-x-8">
                         {renderNavLinks()}
                     </div>
+                    {/* Hamburger Menu for Mobile */}
+                    <div className="flex sm:hidden">
+                        {user !== "SignedOut" && (
+                            <button
+                                type="button"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-white/30 focus:outline-none"
+                                aria-label="Toggle menu"
+                            >
+                                <svg
+                                    className="h-6 w-6"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    {mobileMenuOpen ? (
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    ) : (
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M4 6h16M4 12h16M4 18h16"
+                                        />
+                                    )}
+                                </svg>
+                            </button>
+                        )}
+                    </div>
                     {/* User Menu */}
                     <div className="relative flex items-center space-x-4">
-                        {/* Notification Button */}
                         {user !== "SignedOut" && (
                             <button
                                 type="button"
@@ -168,20 +229,23 @@ function HeaderContent() {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118
-                      14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4
-                      0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214
-                      1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
+                      6.002 0 00-4-5.659V5a2 2 0 10-4
+                      0v.341C7.67 6.165 6 8.388 6 11v3.159c0
+                      .538-.214 1.055-.595 1.436L4 17h5m6
+                      0v1a3 3 0 11-6 0v-1m6 0H9"
                                     />
                                 </svg>
                                 {notifications > 0 && (
-                                    <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                    <span
+                                        className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                                        aria-label={`${notifications} new notifications`}
+                                    >
                     {notifications}
                   </span>
                                 )}
                             </button>
                         )}
-                        {/* User Circle or Login */}
                         {user === "SignedOut" ? (
                             <Link
                                 href="/login"
@@ -203,7 +267,6 @@ function HeaderContent() {
                                 </div>
                             </button>
                         )}
-                        {/* Dropdown Menu */}
                         {dropdownOpen && user !== "SignedOut" && (
                             <div
                                 ref={dropdownRef}
@@ -243,6 +306,12 @@ function HeaderContent() {
                         )}
                     </div>
                 </div>
+                {/* Mobile Navigation Menu */}
+                {mobileMenuOpen && (
+                    <div className="sm:hidden px-2 pt-2 pb-3 space-y-1">
+                        {renderNavLinks()}
+                    </div>
+                )}
             </nav>
         </header>
     );
