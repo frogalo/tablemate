@@ -125,15 +125,15 @@ function HeaderContent() {
                     >
                         Reservations
                     </Link>
-                    <Link
-                        href="/user/profile"
-                        className={`nav-link ${
-                            pathname === "/user/profile" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Profile
-                    </Link>
+                    {/*<Link*/}
+                    {/*    href="/user/profile"*/}
+                    {/*    className={`nav-link ${*/}
+                    {/*        pathname === "/user/profile" ? "nav-link-active" : ""*/}
+                    {/*    }`}*/}
+                    {/*    onClick={() => setMobileMenuOpen(false)}*/}
+                    {/*>*/}
+                    {/*    Profile*/}
+                    {/*</Link>*/}
                 </>
             );
         }
