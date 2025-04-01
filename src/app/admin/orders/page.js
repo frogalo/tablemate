@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RestaurantForm from "@/components/forms/RestaurantForm";
 import AccessoryForm from "@/components/forms/AccessoryForm";
+import Loading from "@/components/ui/Loading";
 
 // Returns a background/text color class based on status
 function getStatusBg(status) {
@@ -15,88 +16,99 @@ function getStatusBg(status) {
 }
 
 export default function AdminOrders() {
-    // Local states (to be later replaced by API calls)
+    // Local states (using as placeholders until replaced by actual API data)
     const [itOrders, setItOrders] = useState([]);
     const [accessories, setAccessories] = useState([]);
     const [restaurants, setRestaurants] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     // Modal state
     const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
     const [isAccessoryModalOpen, setIsAccessoryModalOpen] = useState(false);
 
-    // For edit and delete actions on restaurants
+    // For restaurant edit/delete actions.
     const [restaurantToEdit, setRestaurantToEdit] = useState(null);
     const [restaurantToDelete, setRestaurantToDelete] = useState(null);
 
-    // Fetch data from API GET endpoints on component mount
+    // For accessory edit/delete actions.
+    const [accessoryToEdit, setAccessoryToEdit] = useState(null);
+    const [accessoryToDelete, setAccessoryToDelete] = useState(null);
+
+    // Fetch data from API GET endpoints on component mount.
     useEffect(() => {
-        async function fetchOrders() {
+        async function fetchData() {
             try {
-                const res = await fetch("/api/orders");
-                if (res.ok) {
-                    const data = await res.json();
-                    setItOrders(data);
+                // Fetch all data concurrently.
+                const [ordersRes, accessoriesRes, restaurantsRes] =
+                    await Promise.all([
+                        fetch("/api/orders"),
+                        fetch("/api/accessories"),
+                        fetch("/api/restaurants"),
+                    ]);
+
+                if (ordersRes.ok) {
+                    const ordersData = await ordersRes.json();
+                    setItOrders(ordersData);
+                }
+                if (accessoriesRes.ok) {
+                    const accessoriesData = await accessoriesRes.json();
+                    setAccessories(accessoriesData);
+                }
+                if (restaurantsRes.ok) {
+                    const restaurantsData = await restaurantsRes.json();
+                    setRestaurants(restaurantsData);
                 }
             } catch (error) {
-                console.error("Error fetching orders:", error);
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
             }
         }
-
-        async function fetchAccessories() {
-            try {
-                const res = await fetch("/api/accessories");
-                if (res.ok) {
-                    const data = await res.json();
-                    setAccessories(data);
-                }
-            } catch (error) {
-                console.error("Error fetching accessories:", error);
-            }
-        }
-
-        async function fetchRestaurants() {
-            try {
-                const res = await fetch("/api/restaurants");
-                if (res.ok) {
-                    const data = await res.json();
-                    setRestaurants(data);
-                }
-            } catch (error) {
-                console.error("Error fetching restaurants:", error);
-            }
-        }
-
-        fetchOrders();
-        fetchAccessories();
-        fetchRestaurants();
+        fetchData();
     }, []);
 
     const handleAddCompany = (newRestaurant) => {
-        // This is for creating a new restaurant
-        setRestaurants([...restaurants, { ...newRestaurant, orderCount: 0 }]);
+        // For creating a new restaurant.
+        setRestaurants([
+            ...restaurants,
+            { ...newRestaurant, orderCount: 0 },
+        ]);
         setIsCompanyModalOpen(false);
     };
 
     const handleAddAccessory = (newAccessory) => {
-        setAccessories([...accessories, newAccessory]);
+        // For creating a new accessory.
+        // If editing, update the accessory list accordingly.
+        if (accessoryToEdit) {
+            setAccessories(
+                accessories.map((acc) =>
+                    acc.id === newAccessory.id ? newAccessory : acc
+                )
+            );
+            setAccessoryToEdit(null);
+        } else {
+            setAccessories([...accessories, newAccessory]);
+        }
         setIsAccessoryModalOpen(false);
     };
 
-    // Edit and Remove handlers for restaurants (and other items)
+    // Edit and Remove handlers for restaurants and accessories.
     const handleEditItem = (item, type) => {
         if (type === "restaurant") {
-            // Open RestaurantForm for edit: you can later prefill data using a prop
             setRestaurantToEdit(item);
             setIsCompanyModalOpen(true);
+        } else if (type === "accessory") {
+            setAccessoryToEdit(item);
+            setIsAccessoryModalOpen(true);
         } else {
             console.log("Edit", type, item);
         }
     };
 
-    // Updated remove handler that links to the API.
+    // Remove handler that calls the API.
     const handleRemoveItem = async (item, type) => {
         try {
-            // Generate the API URL based on type
+            // Generate the API URL based on item type.
             let apiUrl = "";
             if (type === "restaurant") {
                 apiUrl = `/api/restaurants/${item.id}`;
@@ -132,21 +144,28 @@ export default function AdminOrders() {
                     )
                 );
             } else if (type === "order") {
-                setItOrders(
-                    itOrders.filter((order) => order.id !== item.id)
-                );
+                setItOrders(itOrders.filter((order) => order.id !== item.id));
             }
         } catch (error) {
             console.error("Error removing", type, error);
         }
     };
 
+    // Show a loading skeleton until data is loaded.
+    if (loading) {
+        return (
+            <ProtectedRoute>
+                <Loading />
+            </ProtectedRoute>
+        );
+    }
+
     return (
         <ProtectedRoute>
             <div className="p-8 space-y-12">
                 <div>
                     <h1 className="text-3xl font-bold text-primary mb-2">
-                        Admin Orders & Inventory
+                        Admin Orders &amp; Inventory
                     </h1>
                     <p className="text-neutral">
                         Manage IT accessories orders, monitor IT accessories inventory (with
@@ -164,7 +183,6 @@ export default function AdminOrders() {
                             <table className="table-fixed w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
-                                    {/* Hide ID column on small screens */}
                                     <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
                                         ID
                                     </th>
@@ -206,12 +224,14 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
+                                                type="button"
                                                 onClick={() => handleEditItem(order, "order")}
                                                 className="mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => handleRemoveItem(order, "order")}
                                                 className="mx-1 text-red-500 hover:text-red-700"
                                             >
@@ -234,7 +254,10 @@ export default function AdminOrders() {
                             IT Accessories Inventory
                         </h2>
                         <button
-                            onClick={() => setIsAccessoryModalOpen(true)}
+                            onClick={() => {
+                                setAccessoryToEdit(null);
+                                setIsAccessoryModalOpen(true);
+                            }}
                             className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                         >
                             Add New IT Accessory
@@ -282,18 +305,20 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
+                                                type="button"
                                                 onClick={() =>
                                                     handleEditItem(accessory, "accessory")
                                                 }
-                                                className="mx-1 text-blue-500 hover:text-blue-700"
+                                                className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() =>
-                                                    handleRemoveItem(accessory, "accessory")
+                                                    setAccessoryToDelete(accessory)
                                                 }
-                                                className="mx-1 text-red-500 hover:text-red-700"
+                                                className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
                                             </button>
@@ -309,6 +334,43 @@ export default function AdminOrders() {
                         </p>
                     )}
                 </section>
+                {/* Confirmation modal for deleting an accessory */}
+                {accessoryToDelete && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
+                        <div
+                            className="absolute inset-0 bg-black opacity-50"
+                            onClick={() => setAccessoryToDelete(null)}
+                        ></div>
+                        <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
+                            <h3 className="text-xl font-bold text-primary mb-4">
+                                Confirm Delete
+                            </h3>
+                            <p className="mb-6 text-neutral">
+                                Are you sure you want to delete accessory &quot;
+                                {accessoryToDelete.name}&quot;?
+                            </p>
+                            <div className="flex justify-end space-x-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setAccessoryToDelete(null)}
+                                    className="cursor-pointer px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleRemoveItem(accessoryToDelete, "accessory");
+                                        setAccessoryToDelete(null);
+                                    }}
+                                    className="cursor-pointer px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* Restaurants Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
@@ -317,7 +379,7 @@ export default function AdminOrders() {
                         </h2>
                         <button
                             onClick={() => {
-                                setRestaurantToEdit(null); // Clear edit data for fresh creation
+                                setRestaurantToEdit(null);
                                 setIsCompanyModalOpen(true);
                             }}
                             className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
@@ -367,6 +429,7 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
+                                                type="button"
                                                 onClick={() => {
                                                     setRestaurantToEdit(restaurant);
                                                     setIsCompanyModalOpen(true);
@@ -376,7 +439,10 @@ export default function AdminOrders() {
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
-                                                onClick={() => setRestaurantToDelete(restaurant)}
+                                                type="button"
+                                                onClick={() =>
+                                                    setRestaurantToDelete(restaurant)
+                                                }
                                                 className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
@@ -391,7 +457,6 @@ export default function AdminOrders() {
                         <p className="text-neutral">No restaurants added yet.</p>
                     )}
                 </section>
-
                 {/* Confirmation modal for deleting a restaurant */}
                 {restaurantToDelete && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
@@ -409,17 +474,19 @@ export default function AdminOrders() {
                             </p>
                             <div className="flex justify-end space-x-4">
                                 <button
+                                    type="button"
                                     onClick={() => setRestaurantToDelete(null)}
                                     className="px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
                                 >
                                     Cancel
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={() => {
                                         handleRemoveItem(restaurantToDelete, "restaurant");
                                         setRestaurantToDelete(null);
                                     }}
-                                    className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                                    className="cursor-pointer  px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
                                 >
                                     Delete
                                 </button>
@@ -431,8 +498,13 @@ export default function AdminOrders() {
                 {/* Modals */}
                 <AccessoryForm
                     isOpen={isAccessoryModalOpen}
-                    onClose={() => setIsAccessoryModalOpen(false)}
+                    onClose={() => {
+                        setIsAccessoryModalOpen(false);
+                        setAccessoryToEdit(null);
+                    }}
                     onSave={handleAddAccessory}
+                    // Pass accessoryToEdit so that AccessoryForm can prefill data if editing.
+                    initialAccessory={accessoryToEdit}
                 />
                 <RestaurantForm
                     isOpen={isCompanyModalOpen}
@@ -441,7 +513,7 @@ export default function AdminOrders() {
                         setRestaurantToEdit(null);
                     }}
                     onSave={handleAddCompany}
-                    // Pass restaurantToEdit here so that RestaurantForm can prefill the form if editing.
+                    // Pass restaurantToEdit so that RestaurantForm can prefill data if editing.
                     initialRestaurant={restaurantToEdit}
                 />
             </div>

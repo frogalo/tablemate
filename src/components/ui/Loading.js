@@ -1,6 +1,8 @@
-export default function DashboardLoading() {
+"use client";
+
+export default function Loading() {
     return (
-        <div className="fade-in animate-pulse">
+        <div className="fade-in animate-pulse p-8 space-y-12">
             {/* Header Skeleton */}
             <div className="mb-8">
                 <div className="h-8 w-48 bg-accent/20 rounded mb-2"></div>

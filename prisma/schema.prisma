@@ -51,14 +51,22 @@ model Delivery {
 }
 
 model Order {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  itemType  String // "MEAL", "IT_EQUIPMENT"
-  itemId    Int
-  status    String
-  delivery  Delivery? // One-to-one relation with Delivery
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id])
+  id           Int         @id @default(autoincrement())
+  userId       Int
+  // Use an enum or a string to differentiate types
+  itemType     String // e.g. "MEAL", "IT_EQUIPMENT"
+  // For food orders:
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId Int?
+  menuItem     MenuItem?   @relation(fields: [menuItemId], references: [id])
+  menuItemId   Int?
+  // For IT orders:
+  device       ITDevice?   @relation(fields: [deviceId], references: [id])
+  deviceId     Int?
+  status       String
+  delivery     Delivery? // One-to-one relation with Delivery
+  createdAt    DateTime    @default(now())
+  user         User        @relation(fields: [userId], references: [id])
 }
 
 model Availability {
@@ -87,6 +95,7 @@ model Restaurant {
   email      String?
   orderCount Int        @default(0)
   menu       MenuItem[]
+  orders     Order[] // This field completes the relation.
 }
 
 model MenuItem {
@@ -95,14 +104,13 @@ model MenuItem {
   price        Float
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   restaurantId Int
+  orders       Order[] // This field completes the relation.
 }
 
-//ITDevice (IT Equipment)
 model ITDevice {
-  id        Int    @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   name      String
   quantity  Int
-  allocated Int    @default(0)
-  // Similarly, orders with itemType "IT_EQUIPMENT" can be related to this model via business logic.
-  // orders Order[] @relation("ItEquipmentOrders")
+  allocated Int     @default(0)
+  orders    Order[] // This field completes the relation.
 }

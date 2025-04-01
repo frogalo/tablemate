@@ -67,3 +67,4 @@ next-env.d.ts
 /prisma/wasm.js
 /prisma/wasm-edge-light-loader.mjs
 /prisma/wasm-worker-loader.mjs
+/prisma/migrations/20250401124137_1/migration.sql
