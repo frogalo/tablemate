@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {useEffect, useState} from "react";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faPlus,
     faTimes,
@@ -34,6 +34,15 @@ export default function AdminUsers() {
 
         fetchUsers();
     }, []);
+
+    // Helper to apply different colors based on role.
+    const getRoleBadgeClasses = (role) => {
+        if (role === "ADMIN") {
+            return "bg-blue-100 text-blue-800 px-2 py-1 rounded";
+        }
+        // Assuming regular users have a different color:
+        return "bg-green-100 text-green-800 px-2 py-1 rounded";
+    };
 
     // Filter users by role and search string (first or last name)
     useEffect(() => {
@@ -77,44 +86,41 @@ export default function AdminUsers() {
 
     // Instead of using window.confirm, show the confirm modal
     const handleRemoveUserClick = (user) => {
-        setDeleteConfirm({ show: true, user });
+        setDeleteConfirm({show: true, user});
     };
 
     const handleCancelDelete = () => {
-        setDeleteConfirm({ show: false, user: null });
+        setDeleteConfirm({show: false, user: null});
     };
 
     const handleConfirmDelete = async () => {
-        const { user } = deleteConfirm;
+        const {user} = deleteConfirm;
         try {
             const res = await fetch(`/api/users/${user.id}`, {
                 method: "DELETE",
             });
             if (!res.ok) {
-                // Instead of throwing an error, log or update the state
                 console.error("Failed to delete user.");
-                // Optionally show an error message, e.g.:
-                // setError("Failed to delete user.");
                 return;
             }
             setUsers(users.filter((u) => u.id !== user.id));
         } catch (err) {
             console.error("Error deleting user:", err);
         } finally {
-            setDeleteConfirm({ show: false, user: null });
+            setDeleteConfirm({show: false, user: null});
         }
     };
 
     return (
         <ProtectedRoute>
-            <div className="p-8 main-container">
+            <div className="p-8 main-container space-y-6">
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-3xl font-bold text-primary">Admin Users</h1>
                     <button
                         onClick={handleOpenAddModal}
-                        className="btn-primary transition-all px-6 py-3 text-lg"
+                        className="btn-primary transition-all px-6 py-3 text-lg cursor-pointer"
                     >
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                        <FontAwesomeIcon icon={faPlus} className="mr-2"/>
                         Add User
                     </button>
                 </div>
@@ -160,20 +166,24 @@ export default function AdminUsers() {
                     {user.firstName} {user.lastName}
                   </span>{" "}
                                     &mdash;{" "}
-                                    <span className="text-secondary">{user.role}</span>
+                                    <span className={getRoleBadgeClasses(user.role)}>
+                    {user.role}
+                  </span>
                                 </div>
                                 <div className="flex space-x-4">
                                     <button
                                         onClick={() => handleEditUser(user)}
-                                        className="cursor-pointer  text-blue-500 hover:text-blue-600 px-2 py-2 text-xl"
+                                        className="cursor-pointer text-blue-500 hover:text-blue-600 px-2 py-2 text-xl"
+                                        type="button"
                                     >
-                                        <FontAwesomeIcon icon={faEdit} />
+                                        <FontAwesomeIcon icon={faEdit}/>
                                     </button>
                                     <button
                                         onClick={() => handleRemoveUserClick(user)}
-                                        className="cursor-pointer  text-red-500 hover:text-red-600 px-2 py-2 text-xl"
+                                        className="cursor-pointer text-red-500 hover:text-red-600 px-2 py-2 text-xl"
+                                        type="button"
                                     >
-                                        <FontAwesomeIcon icon={faTrash} />
+                                        <FontAwesomeIcon icon={faTrash}/>
                                     </button>
                                 </div>
                             </li>
@@ -188,16 +198,17 @@ export default function AdminUsers() {
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
                         {/* Modal backdrop */}
                         <div
-                            className="absolute inset-0 bg-black opacity-50"
+                            className="absolute inset-0 bg-black opacity-50 cursor-pointer"
                             onClick={handleCloseModal}
                         ></div>
                         {/* Modal box */}
                         <div className="relative bg-light rounded p-6 mx-4 max-w-md w-full card">
                             <button
+                                type="button"
                                 onClick={handleCloseModal}
-                                className="absolute top-2 right-2 text-neutral hover:text-secondary"
+                                className="absolute top-2 right-2 text-neutral hover:text-secondary cursor-pointer"
                             >
-                                <FontAwesomeIcon icon={faTimes} />
+                                <FontAwesomeIcon icon={faTimes}/>
                             </button>
                             <h2 className="text-2xl mb-4 text-primary">
                                 {editingUser ? "Edit User" : "Add New User"}
@@ -217,7 +228,7 @@ export default function AdminUsers() {
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
                         {/* Modal backdrop */}
                         <div
-                            className="absolute inset-0 bg-black opacity-50"
+                            className="absolute inset-0 bg-black opacity-50 cursor-pointer"
                             onClick={handleCancelDelete}
                         ></div>
                         {/* Modal box */}
@@ -228,8 +239,7 @@ export default function AdminUsers() {
                             <p className="mb-6">
                                 Are you sure you want to delete{" "}
                                 <span className="font-medium">
-                  {deleteConfirm.user.firstName}{" "}
-                                    {deleteConfirm.user.lastName}
+                  {deleteConfirm.user.firstName} {deleteConfirm.user.lastName}
                 </span>
                                 ?
                             </p>
@@ -237,14 +247,16 @@ export default function AdminUsers() {
                                 <button
                                     onClick={handleCancelDelete}
                                     className="cursor-pointer px-6 py-3 text-lg bg-gray-300 rounded hover:bg-gray-400"
+                                    type="button"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleConfirmDelete}
                                     className="cursor-pointer px-10 py-4 text-xl text-red-500 hover:text-red-600"
+                                    type="button"
                                 >
-                                    <FontAwesomeIcon icon={faTrash} /> Delete
+                                    <FontAwesomeIcon icon={faTrash}/> Delete
                                 </button>
                             </div>
                         </div>
