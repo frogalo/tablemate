@@ -1,11 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function RestaurantForm({ isOpen, onClose, onSave }) {
+export default function RestaurantForm({
+                                           isOpen,
+                                           onClose,
+                                           onSave,
+                                           initialRestaurant,
+                                       }) {
     const [restaurantName, setRestaurantName] = useState("");
     const [restaurantEmail, setRestaurantEmail] = useState("");
     const [menuItems, setMenuItems] = useState([]);
+
+    // When the form modal opens or when initialRestaurant changes, prefill data if needed.
+    useEffect(() => {
+        if (initialRestaurant) {
+            setRestaurantName(initialRestaurant.name || "");
+            setRestaurantEmail(initialRestaurant.email || "");
+            // If the restaurant already has a menu, we pre-populate it.
+            setMenuItems(
+                Array.isArray(initialRestaurant.menu)
+                    ? initialRestaurant.menu.map((item) => ({
+                        title: item.title,
+                        price: item.price,
+                    }))
+                    : []
+            );
+        } else {
+            setRestaurantName("");
+            setRestaurantEmail("");
+            setMenuItems([]);
+        }
+    }, [initialRestaurant, isOpen]);
 
     // Add a new empty menu item entry
     const addMenuItem = () => {
@@ -24,9 +50,9 @@ export default function RestaurantForm({ isOpen, onClose, onSave }) {
         setMenuItems(menuItems.filter((_, idx) => idx !== index));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const newRestaurant = {
+        const restaurantData = {
             name: restaurantName,
             email: restaurantEmail,
             menu: menuItems.map((item) => ({
@@ -34,11 +60,31 @@ export default function RestaurantForm({ isOpen, onClose, onSave }) {
                 price: parseFloat(item.price),
             })),
         };
-        onSave(newRestaurant);
-        // Reset form fields
-        setRestaurantName("");
-        setRestaurantEmail("");
-        setMenuItems([]);
+
+        // If editing, include an identifier so the API knows this is an update.
+        if (initialRestaurant && initialRestaurant.id) {
+            restaurantData.id = initialRestaurant.id;
+        }
+
+        try {
+            const res = await fetch("/api/restaurants", {
+                method: "POST", // or PUT if you want to differentiate between new and update
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(restaurantData),
+            });
+            if (!res.ok) {
+                console.error("Failed to create/update restaurant");
+                return;
+            }
+            const data = await res.json();
+            onSave(data);
+            // Reset form fields after successful submission
+            setRestaurantName("");
+            setRestaurantEmail("");
+            setMenuItems([]);
+        } catch (error) {
+            console.error("Error creating/updating restaurant:", error);
+        }
     };
 
     if (!isOpen) return null;
@@ -53,7 +99,7 @@ export default function RestaurantForm({ isOpen, onClose, onSave }) {
             {/* Modal container */}
             <div className="relative bg-light rounded p-6 mx-4 max-w-lg w-full card">
                 <h2 className="text-2xl font-bold text-primary mb-4">
-                    Add Restaurant
+                    {initialRestaurant ? "Edit Restaurant" : "Add Restaurant"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -85,10 +131,13 @@ export default function RestaurantForm({ isOpen, onClose, onSave }) {
                             Menu Items
                         </label>
                         {menuItems.map((item, index) => (
-                            <div key={index} className="flex space-x-2 items-center mb-2">
+                            <div
+                                key={index}
+                                className="flex space-x-2 items-center mb-2"
+                            >
                                 <input
                                     type="text"
-                                    placeholder="Position"
+                                    placeholder="Item Title"
                                     value={item.title}
                                     onChange={(e) =>
                                         handleMenuItemChange(index, "title", e.target.value)
@@ -119,7 +168,7 @@ export default function RestaurantForm({ isOpen, onClose, onSave }) {
                         <button
                             type="button"
                             onClick={addMenuItem}
-                            className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                            className="mt-2 px-4 py-2 rounded btn-primary hover:scale-105 transition-transform"
                         >
                             Add Menu Item
                         </button>
@@ -134,9 +183,9 @@ export default function RestaurantForm({ isOpen, onClose, onSave }) {
                         </button>
                         <button
                             type="submit"
-                            className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                            className="px-4 py-2 rounded btn-primary hover:scale-105 transition-transform"
                         >
-                            Add Restaurant
+                            {initialRestaurant ? "Update Restaurant" : "Add Restaurant"}
                         </button>
                     </div>
                 </form>

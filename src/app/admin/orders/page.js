@@ -15,7 +15,7 @@ function getStatusBg(status) {
 }
 
 export default function AdminOrders() {
-    // Local states, initially using sample data (which will be replaced by API getters)
+    // Local states (to be later replaced by API calls)
     const [itOrders, setItOrders] = useState([]);
     const [accessories, setAccessories] = useState([]);
     const [restaurants, setRestaurants] = useState([]);
@@ -23,6 +23,10 @@ export default function AdminOrders() {
     // Modal state
     const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
     const [isAccessoryModalOpen, setIsAccessoryModalOpen] = useState(false);
+
+    // For edit and delete actions on restaurants
+    const [restaurantToEdit, setRestaurantToEdit] = useState(null);
+    const [restaurantToDelete, setRestaurantToDelete] = useState(null);
 
     // Fetch data from API GET endpoints on component mount
     useEffect(() => {
@@ -68,24 +72,73 @@ export default function AdminOrders() {
     }, []);
 
     const handleAddCompany = (newRestaurant) => {
-        // Optionally, you can also post new restaurants to the API endpoint here.
+        // This is for creating a new restaurant
         setRestaurants([...restaurants, { ...newRestaurant, orderCount: 0 }]);
         setIsCompanyModalOpen(false);
     };
 
     const handleAddAccessory = (newAccessory) => {
-        // Optionally, you can also post new accessory to the API endpoint here.
         setAccessories([...accessories, newAccessory]);
         setIsAccessoryModalOpen(false);
     };
 
-    // Sample handlers for edit and remove actions
+    // Edit and Remove handlers for restaurants (and other items)
     const handleEditItem = (item, type) => {
-        console.log("Edit", type, item);
+        if (type === "restaurant") {
+            // Open RestaurantForm for edit: you can later prefill data using a prop
+            setRestaurantToEdit(item);
+            setIsCompanyModalOpen(true);
+        } else {
+            console.log("Edit", type, item);
+        }
     };
 
-    const handleRemoveItem = (item, type) => {
-        console.log("Remove", type, item);
+    // Updated remove handler that links to the API.
+    const handleRemoveItem = async (item, type) => {
+        try {
+            // Generate the API URL based on type
+            let apiUrl = "";
+            if (type === "restaurant") {
+                apiUrl = `/api/restaurants/${item.id}`;
+            } else if (type === "accessory") {
+                apiUrl = `/api/accessories/${item.id}`;
+            } else if (type === "order") {
+                apiUrl = `/api/orders/${item.id}`;
+            } else {
+                console.log("Unknown type:", type);
+                return;
+            }
+
+            const res = await fetch(apiUrl, {
+                method: "DELETE",
+            });
+
+            if (!res.ok) {
+                console.error(`Failed to remove ${type}`);
+                return;
+            }
+
+            // Update local state if deletion was successful.
+            if (type === "restaurant") {
+                setRestaurants(
+                    restaurants.filter(
+                        (restaurant) => restaurant.id !== item.id
+                    )
+                );
+            } else if (type === "accessory") {
+                setAccessories(
+                    accessories.filter(
+                        (accessory) => accessory.id !== item.id
+                    )
+                );
+            } else if (type === "order") {
+                setItOrders(
+                    itOrders.filter((order) => order.id !== item.id)
+                );
+            }
+        } catch (error) {
+            console.error("Error removing", type, error);
+        }
     };
 
     return (
@@ -97,8 +150,8 @@ export default function AdminOrders() {
                     </h1>
                     <p className="text-neutral">
                         Manage IT accessories orders, monitor IT accessories inventory (with
-                        allocation details), and add new food delivery companies.
-                        Use this panel to keep track of orders, storage items, and their allocation to users.
+                        allocation details), and add new food delivery companies. Use this panel
+                        to keep track of orders, storage items, and their allocation to users.
                     </p>
                 </div>
                 {/* IT Accessories Orders Section */}
@@ -174,7 +227,6 @@ export default function AdminOrders() {
                         <p className="text-neutral">No orders yet.</p>
                     )}
                 </section>
-
                 {/* IT Accessories Inventory Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
@@ -230,13 +282,17 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
-                                                onClick={() => handleEditItem(accessory, "accessory")}
+                                                onClick={() =>
+                                                    handleEditItem(accessory, "accessory")
+                                                }
                                                 className="mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
-                                                onClick={() => handleRemoveItem(accessory, "accessory")}
+                                                onClick={() =>
+                                                    handleRemoveItem(accessory, "accessory")
+                                                }
                                                 className="mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
@@ -253,15 +309,17 @@ export default function AdminOrders() {
                         </p>
                     )}
                 </section>
-
-                {/* Food Delivery Companies Section (Restaurants) */}
+                {/* Restaurants Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-primary">
                             Restaurants
                         </h2>
                         <button
-                            onClick={() => setIsCompanyModalOpen(true)}
+                            onClick={() => {
+                                setRestaurantToEdit(null); // Clear edit data for fresh creation
+                                setIsCompanyModalOpen(true);
+                            }}
                             className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                         >
                             Add New Restaurant
@@ -309,14 +367,17 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
-                                                onClick={() => handleEditItem(restaurant, "restaurant")}
-                                                className="mx-1 text-blue-500 hover:text-blue-700"
+                                                onClick={() => {
+                                                    setRestaurantToEdit(restaurant);
+                                                    setIsCompanyModalOpen(true);
+                                                }}
+                                                className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
                                             </button>
                                             <button
-                                                onClick={() => handleRemoveItem(restaurant, "restaurant")}
-                                                className="mx-1 text-red-500 hover:text-red-700"
+                                                onClick={() => setRestaurantToDelete(restaurant)}
+                                                className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
                                             >
                                                 <i className="fa fa-trash"></i>
                                             </button>
@@ -331,6 +392,42 @@ export default function AdminOrders() {
                     )}
                 </section>
 
+                {/* Confirmation modal for deleting a restaurant */}
+                {restaurantToDelete && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
+                        <div
+                            className="absolute inset-0 bg-black opacity-50"
+                            onClick={() => setRestaurantToDelete(null)}
+                        ></div>
+                        <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
+                            <h3 className="text-xl font-bold text-primary mb-4">
+                                Confirm Delete
+                            </h3>
+                            <p className="mb-6 text-neutral">
+                                Are you sure you want to delete restaurant &quot;
+                                {restaurantToDelete.name}&quot;?
+                            </p>
+                            <div className="flex justify-end space-x-4">
+                                <button
+                                    onClick={() => setRestaurantToDelete(null)}
+                                    className="px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        handleRemoveItem(restaurantToDelete, "restaurant");
+                                        setRestaurantToDelete(null);
+                                    }}
+                                    className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Modals */}
                 <AccessoryForm
                     isOpen={isAccessoryModalOpen}
@@ -339,8 +436,13 @@ export default function AdminOrders() {
                 />
                 <RestaurantForm
                     isOpen={isCompanyModalOpen}
-                    onClose={() => setIsCompanyModalOpen(false)}
+                    onClose={() => {
+                        setIsCompanyModalOpen(false);
+                        setRestaurantToEdit(null);
+                    }}
                     onSave={handleAddCompany}
+                    // Pass restaurantToEdit here so that RestaurantForm can prefill the form if editing.
+                    initialRestaurant={restaurantToEdit}
                 />
             </div>
         </ProtectedRoute>
