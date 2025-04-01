@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useContext, useState, useEffect, useRef } from "react";
-import { UserContext } from "@/lib/UserContext";
+import {usePathname, useRouter} from "next/navigation";
+import {useContext, useState, useEffect, useRef} from "react";
+import {UserContext} from "@/lib/UserContext";
 import ClientOnly from "@/components/ClientOnly";
 
 function HeaderContent() {
     const pathname = usePathname();
     const router = useRouter();
-    const { user, setUser } = useContext(UserContext);
+    const {user, setUser} = useContext(UserContext);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
@@ -161,15 +161,17 @@ function HeaderContent() {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <div className="flex items-center">
-                        <Link href="/" className="flex items-center">
+                        <Link
+                            href={user === "Admin" ? "/admin/dashboard" : user === "User" ? "/user/dashboard" : "/"}
+                            className="flex items-center">
                             <img
                                 src="/logo.png"
                                 alt="TableMate Logo"
                                 className="h-8 w-8 mr-2"
                             />
                             <span className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
-                TableMate
-              </span>
+                                 TableMate
+                            </span>
                         </Link>
                     </div>
                     {/* Desktop Navigation Links */}
@@ -320,7 +322,7 @@ function HeaderContent() {
 export default function Header() {
     return (
         <ClientOnly>
-            <HeaderContent />
+            <HeaderContent/>
         </ClientOnly>
     );
 }
