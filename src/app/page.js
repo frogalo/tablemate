@@ -20,7 +20,7 @@ export default function Home() {
                         <i className="fa fa-sign-in-alt text-xl mr-2"></i>
                         Get started
                     </Link>
-                    <Link href="/about" className="text-sm font-semibold leading-6 text-secondary inline-flex items-center">
+                    <Link href="/about" className="text-sm font-semibold leading-6 text-neutral inline-flex items-center">
                         Learn more <span aria-hidden="true">→</span>
                     </Link>
                 </div>
@@ -32,7 +32,7 @@ export default function Home() {
                     <h2 className="text-base font-semibold leading-7 text-primary">
                         Manage Smarter
                     </h2>
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-secondary">
+                    <p className="mt-2 text-3xl font-bold tracking-tight text-neutral">
                         Everything you need to manage office resources
                     </p>
                 </div>

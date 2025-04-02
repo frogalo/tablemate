@@ -85,9 +85,9 @@ body {
 }
 
 .nav-link-active {
-    color: var(--light);
+    color: var(--accent);
     opacity: 1;
-    border-bottom-color: var(--light);
+    border-bottom-color: var(--accent);
 }
 
 .card {
@@ -144,6 +144,7 @@ body {
 .text-secondary {
     color: var(--secondary);
 }
+
 
 .text-neutral {
     color: var(--neutral);
