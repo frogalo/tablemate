@@ -5,6 +5,7 @@
 :root {
     --primary: #2980B9;
     --secondary: #2C3E50;
+    --third: #e8e8ee;
     --light: #ECF0F1;
     --neutral: #7F8C8D;
     --accent: #E74C3C;
@@ -20,6 +21,7 @@
 :root[data-theme='dark'] {
     --primary: #4db6ac; /* Teal */
     --secondary: #37474f; /* Darker Gray */
+    --third: #3c3d3f;
     --light: #455A64; /* Medium Gray */
     --neutral: #B0BEC5; /* Light Gray-Blue */
     --accent: #ff7043; /* Orange */
@@ -157,6 +159,9 @@ body {
 
 .bg-secondary {
     background-color: var(--secondary);
+}
+.bg-third {
+    background-color: var(--third);
 }
 
 .bg-neutral {

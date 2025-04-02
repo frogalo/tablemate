@@ -17,7 +17,7 @@ const NotificationList = ({ notifications, onClose }) => {
     }
 
     return (
-        <div className="absolute right-0 top-[100%] w-80 bg-secondary bg-card-bg shadow-xl rounded-md overflow-hidden z-10 border border-card-border transition-colors duration-300">
+        <div className="absolute right-0 top-[100%] w-80 bg-third bg-card-bg shadow-xl rounded-md overflow-hidden z-10 border border-card-border transition-colors duration-300">
             {notifications.map((notification) => (
                 <div
                     key={notification.id}
