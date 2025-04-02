@@ -291,3 +291,16 @@ input:checked + .slider:before {
         opacity: 0;
     }
 }
+@media (max-width: 640px) {
+    .nav-link {
+        display: block;
+        padding: 0.5rem 1rem;
+        margin: 0.5rem 0;
+        border-radius: 0.375rem;
+        color: white;
+    }
+
+    .nav-link-active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+}

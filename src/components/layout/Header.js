@@ -1,30 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import {usePathname, useRouter} from "next/navigation";
-import {useContext, useState, useEffect, useRef} from "react";
-import {UserContext} from "@/lib/UserContext";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useState, useEffect, useRef } from "react";
+import { UserContext } from "@/lib/UserContext";
 import ClientOnly from "@/components/ClientOnly";
 import NotificationList from "@/components/NotificationList";
 
 function HeaderContent() {
     const pathname = usePathname();
     const router = useRouter();
-    const {user, setUser} = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
     const [showNotificationList, setShowNotificationList] = useState(false);
     const dropdownRef = useRef(null);
     const notificationButtonRef = useRef(null);
-    const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
-    // Function to toggle the theme
     const toggleTheme = () => {
-        setIsDarkMode((prevMode) => !prevMode); // Toggle the mode
+        setIsDarkMode((prevMode) => !prevMode);
     };
 
-    // Load the theme from localStorage on component mount
     useEffect(() => {
         const storedTheme = localStorage.getItem("theme");
         if (storedTheme === "dark") {
@@ -32,15 +30,14 @@ function HeaderContent() {
         }
     }, []);
 
-    // Update the data-theme attribute on the root element (<html>) and save to localStorage
     useEffect(() => {
         const root = window.document.documentElement;
         if (isDarkMode) {
             root.setAttribute("data-theme", "dark");
-            localStorage.setItem("theme", "dark"); // Save to localStorage
+            localStorage.setItem("theme", "dark");
         } else {
             root.removeAttribute("data-theme");
-            localStorage.setItem("theme", "light"); // Save to localStorage
+            localStorage.setItem("theme", "light");
         }
     }, [isDarkMode]);
 
@@ -80,108 +77,103 @@ function HeaderContent() {
             return null;
         }
 
-        if (user === "Admin") {
-            return (
-                <>
-                    <Link
-                        href="/admin/dashboard"
-                        className={`nav-link ${
-                            pathname === "/admin/dashboard" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Dashboard
-                    </Link>
-                    <Link
-                        href="/admin/users"
-                        className={`nav-link ${
-                            pathname === "/admin/users" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Users
-                    </Link>
-                    <Link
-                        href="/admin/reservations"
-                        className={`nav-link ${
-                            pathname === "/admin/reservations" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Reservations
-                    </Link>
-                    <Link
-                        href="/admin/orders"
-                        className={`nav-link ${
-                            pathname === "/admin/orders" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Orders
-                    </Link>
-                    <Link
-                        href="/admin/reports"
-                        className={`nav-link ${
-                            pathname === "/admin/reports" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Reports
-                    </Link>
-                    <Link
-                        href="/admin/notifications"
-                        className={`nav-link ${
-                            pathname === "/admin/notifications" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Notifications
-                    </Link>
-                </>
-            );
-        }
-
-        if (user === "User") {
-            return (
-                <>
-                    <Link
-                        href="/user/dashboard"
-                        className={`nav-link ${
-                            pathname === "/user/dashboard" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Dashboard
-                    </Link>
-                    <Link
-                        href="/user/orders"
-                        className={`nav-link ${
-                            pathname === "/user/orders" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Orders
-                    </Link>
-                    <Link
-                        href="/user/reservations"
-                        className={`nav-link ${
-                            pathname === "/user/reservations" ? "nav-link-active" : ""
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        Reservations
-                    </Link>
-                </>
-            );
-        }
+        return (
+            <div className="flex flex-col sm:flex-row sm:space-x-8">
+                {user === "Admin" ? (
+                    <>
+                        <Link
+                            href="/admin/dashboard"
+                            className={`nav-link ${
+                                pathname === "/admin/dashboard" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="/admin/users"
+                            className={`nav-link ${
+                                pathname === "/admin/users" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Users
+                        </Link>
+                        <Link
+                            href="/admin/reservations"
+                            className={`nav-link ${
+                                pathname === "/admin/reservations" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Reservations
+                        </Link>
+                        <Link
+                            href="/admin/orders"
+                            className={`nav-link ${
+                                pathname === "/admin/orders" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Orders
+                        </Link>
+                        <Link
+                            href="/admin/reports"
+                            className={`nav-link ${
+                                pathname === "/admin/reports" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Reports
+                        </Link>
+                        <Link
+                            href="/admin/notifications"
+                            className={`nav-link ${
+                                pathname === "/admin/notifications" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Notifications
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link
+                            href="/user/dashboard"
+                            className={`nav-link ${
+                                pathname === "/user/dashboard" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            href="/user/orders"
+                            className={`nav-link ${
+                                pathname === "/user/orders" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Orders
+                        </Link>
+                        <Link
+                            href="/user/reservations"
+                            className={`nav-link ${
+                                pathname === "/user/reservations" ? "nav-link-active" : ""
+                            }`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Reservations
+                        </Link>
+                    </>
+                )}
+            </div>
+        );
     };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
-            ) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setDropdownOpen(false);
             }
         };
@@ -215,9 +207,7 @@ function HeaderContent() {
               </span>
                         </Link>
                     </div>
-                    <div className="hidden sm:flex sm:space-x-8">
-                        {renderNavLinks()}
-                    </div>
+                    <div className="hidden sm:flex sm:space-x-8">{renderNavLinks()}</div>
                     <div className="flex sm:hidden">
                         {user !== "SignedOut" && (
                             <button
@@ -276,8 +266,7 @@ function HeaderContent() {
                                     />
                                 </svg>
                                 {notifications > 0 && (
-                                    <span
-                                        className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                    <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {notifications}
                   </span>
                                 )}
@@ -294,15 +283,17 @@ function HeaderContent() {
 
                         {user === "SignedOut" ? (
                             <>
-                                {/* Dark Mode Toggle */}
-                                <label className="switch">
-                                    <input
-                                        type="checkbox"
-                                        checked={isDarkMode}
-                                        onChange={toggleTheme}
-                                    />
-                                    <span className="slider round"></span>
-                                </label>
+                                <button
+                                    onClick={toggleTheme}
+                                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                                    aria-label="Toggle theme"
+                                >
+                                    {isDarkMode ? (
+                                        <i className="fas fa-sun text-white text-lg" />
+                                    ) : (
+                                        <i className="fas fa-moon text-white text-lg" />
+                                    )}
+                                </button>
                                 <Link
                                     href="/login"
                                     className="nav-link rounded-full flex items-center bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30 transition cursor-pointer"
@@ -312,15 +303,17 @@ function HeaderContent() {
                             </>
                         ) : (
                             <>
-                                {/* Dark Mode Toggle */}
-                                <label className="switch">
-                                    <input
-                                        type="checkbox"
-                                        checked={isDarkMode}
-                                        onChange={toggleTheme}
-                                    />
-                                    <span className="slider round"></span>
-                                </label>
+                                <button
+                                    onClick={toggleTheme}
+                                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                                    aria-label="Toggle theme"
+                                >
+                                    {isDarkMode ? (
+                                        <i className="fas fa-sun text-white text-lg" />
+                                    ) : (
+                                        <i className="fas fa-moon text-white text-lg" />
+                                    )}
+                                </button>
                                 <button
                                     type="button"
                                     className="nav-link rounded-full flex items-center"
@@ -375,6 +368,11 @@ function HeaderContent() {
                     </div>
                 </div>
             </nav>
+            {mobileMenuOpen && (
+                <div className="sm:hidden">
+                    <div className="px-2 pt-2 pb-3 space-y-1">{renderNavLinks()}</div>
+                </div>
+            )}
         </header>
     );
 }
@@ -382,7 +380,7 @@ function HeaderContent() {
 export default function Header() {
     return (
         <ClientOnly>
-            <HeaderContent/>
+            <HeaderContent />
         </ClientOnly>
     );
 }
