@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useToast } from "@/lib/useToast"; // Import useToast
 
 export default function AdminNotifications() {
-    // Notification settings with default content
     const [notifications, setNotifications] = useState({
         canceledOrder: {
             enabled: true,
@@ -89,33 +89,60 @@ export default function AdminNotifications() {
         },
     });
 
-    // Simulate loading state for notifications (replace with your API call as needed)
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false); // State for save button loading
+    const { addToast } = useToast(); // Get addToast function
+
     useEffect(() => {
-        // Simulate fetch delay (1 second) for demonstration.
         const timer = setTimeout(() => {
+            // In a real app, fetch initial settings here
             setLoading(false);
         }, 1000);
-
         return () => clearTimeout(timer);
     }, []);
 
-    // Handler for notification content change
     const handleNotificationChange = (key, field, value) => {
-        setNotifications({
-            ...notifications,
+        setNotifications((prev) => ({
+            ...prev,
             [key]: {
-                ...notifications[key],
+                ...prev[key],
                 [field]: value,
             },
-        });
+        }));
+    };
+
+    const handleSaveChanges = async () => {
+        setIsSaving(true);
+        console.log("Simulating saving notification settings:", notifications);
+
+        // Simulate API call delay
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        try {
+            // Replace with actual API call:
+            // const response = await fetch('/api/notification-settings', {
+            //   method: 'POST', // or PUT
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify(notifications),
+            // });
+            // if (!response.ok) {
+            //   throw new Error('Failed to save settings');
+            // }
+
+            addToast("Notification settings saved successfully!", "success");
+        } catch (error) {
+            console.error("Error saving settings:", error);
+            addToast(error.message || "Failed to save settings.", "error");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     if (loading) {
         return (
             <ProtectedRoute>
-                <div className="flex justify-center items-center h-screen">
-                    <PulseLoader color="#3b82f6" size={16} />
+                <div className="flex justify-center items-center min-h-screen">
+                    <PulseLoader color="var(--primary)" size={16} />
                 </div>
             </ProtectedRoute>
         );
@@ -123,54 +150,46 @@ export default function AdminNotifications() {
 
     return (
         <ProtectedRoute>
-            <div className="p-8 main-container">
-                {/* Page Header */}
+            <div className="p-6 md:p-8 min-h-screen">
                 <h1 className="text-3xl font-bold text-primary mb-6">
                     Notification Settings
                 </h1>
-                <p className="mb-6 text-neutral">
-                    Customize notifications for various actions.
+                <p className="mb-8 text-neutral">
+                    Customize notifications sent for various platform actions. Enable or
+                    disable and edit the content below.
                 </p>
 
-                {/* Notification Cards */}
-                <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Object.entries(notifications).map(([key, notification]) => (
-                        <div key={key} className="card p-6">
+                        <div key={key} className="card bg-card-bg p-5 rounded-lg shadow">
                             <div className="flex items-center justify-between mb-4">
                                 <label
                                     htmlFor={`${key}-enabled`}
-                                    className="text-lg font-medium text-primary"
+                                    className="text-base font-medium text-primary flex-grow mr-4"
                                 >
                                     {key
                                         .replace(/([A-Z])/g, " $1")
                                         .replace(/^./, (str) => str.toUpperCase())}
                                 </label>
-
-                                {/* Custom switch toggle */}
-                                <label className="switch">
+                                <label className="switch flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         id={`${key}-enabled`}
                                         checked={notification.enabled}
                                         onChange={(e) =>
-                                            handleNotificationChange(
-                                                key,
-                                                "enabled",
-                                                e.target.checked
-                                            )
+                                            handleNotificationChange(key, "enabled", e.target.checked)
                                         }
+                                        disabled={isSaving}
                                     />
                                     <span className="slider round"></span>
                                 </label>
                             </div>
-
-                            {/* Notification Content */}
                             <div className="mt-2">
                                 <label
                                     htmlFor={`${key}-content`}
-                                    className="block text-sm font-medium text-neutral"
+                                    className="block text-sm font-medium text-neutral mb-1"
                                 >
-                                    Notification Content:
+                                    Content:
                                 </label>
                                 <textarea
                                     id={`${key}-content`}
@@ -178,17 +197,25 @@ export default function AdminNotifications() {
                                     onChange={(e) =>
                                         handleNotificationChange(key, "content", e.target.value)
                                     }
-                                    className="mt-1 block w-full rounded-md border border-neutral shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                                    rows={3}
+                                    className="mt-1 block w-full rounded-md border border-neutral shadow-sm focus:border-primary focus:ring-primary sm:text-sm bg-inherit p-2"
+                                    disabled={isSaving || !notification.enabled} // Disable if toggle is off or saving
+                                    style={{
+                                        opacity: notification.enabled ? 1 : 0.6,
+                                    }} // Dim if disabled
                                 />
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Save Button (this implementation will not persist data) */}
-                <div className="mt-8">
-                    <button className="btn-primary px-6 py-3 text-lg">
-                        Save Changes
+                <div className="mt-10 text-right">
+                    <button
+                        onClick={handleSaveChanges}
+                        className="btn-primary px-6 py-2.5 text-base rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isSaving}
+                    >
+                        {isSaving ? "Saving..." : "Save Changes"}
                     </button>
                 </div>
             </div>
