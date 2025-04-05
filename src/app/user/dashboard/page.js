@@ -327,7 +327,7 @@ const recentActivities = [
         description: (
             <span>
         Conference room{" "}
-                <span className="bg-blue-100 text-blue-800 px-2 rounded">A</span>{" "}
+                <span className="bg-blue-100 text-blue-800 px-2 rounded">A101</span>{" "}
                 reserved
       </span>
         ),

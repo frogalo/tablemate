@@ -419,4 +419,10 @@ const adminNotifications = [
         message: "The inventory for laptops is running low",
         time: "3 hours ago",
     },
+    {
+        id: 6,
+        title: "New Reservation",
+        message: "A new reservation for Conference Room A has been confirmed",
+        time: "45 minutes ago",
+    },
 ];
