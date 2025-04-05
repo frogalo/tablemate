@@ -178,22 +178,28 @@ export default function Dashboard() {
                                 {recentActivities.map((activity, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0"
+                                        className="flex items-center justify-between pb-3 border-b border-accent last:border-0"
                                     >
-                                        <div
-                                            className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}
-                                        ></div>
-                                        <div>
-                                            <p className="text-neutral">{activity.description}</p>
-                                            <p className="text-sm text-accent">{activity.time}</p>
+                                        <div className="flex items-start space-x-3">
+                                            <div
+                                                className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}
+                                            ></div>
+                                            <div>
+                                                <p className="text-neutral">{activity.description}</p>
+                                                <p className="text-sm text-accent">{activity.time}</p>
+                                            </div>
                                         </div>
+                                        {/* Info icon to navigate directly */}
+                                        <a href="/dashboard/activity" className="cursor-pointer">
+                                            <i className="fa fa-info-circle text-xl text-primary"></i>
+                                        </a>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {/* Quick Actions (unchanged) */}
+                    {/* Quick Actions */}
                     <div className="card p-6">
                         <h2 className="text-xl font-semibold text-primary mb-8">
                             Quick Actions
@@ -202,7 +208,7 @@ export default function Dashboard() {
                             {quickActions.map((action, index) => (
                                 <a
                                     key={index}
-                                    href="#" // Prevent automatic navigation
+                                    href="#"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         // Set the active form type and open the appropriate modal
@@ -249,17 +255,13 @@ export default function Dashboard() {
                         Upcoming Reservations
                     </h2>
                     {loading ? (
-                        <SkeletonTable
-                            columns={["Resource", "Date", "Time", "Status"]}
-                        />
+                        <SkeletonTable columns={["Resource", "Date", "Time", "Status"]} />
                     ) : (
                         <div className="card overflow-x-auto">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
-                                    <th className="text-left pb-3 text-neutral">
-                                        Resource
-                                    </th>
+                                    <th className="text-left pb-3 text-neutral">Resource</th>
                                     <th className="text-left pb-3 text-neutral">Date</th>
                                     <th className="text-left pb-3 text-neutral">Time</th>
                                     <th className="text-left pb-3 text-neutral">Status</th>
@@ -269,14 +271,12 @@ export default function Dashboard() {
                                 {upcomingReservations.map((reservation, index) => (
                                     <tr
                                         key={index}
-                                        className="border-b border-accent last:border-0"
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">
                                             {reservation.resource}
                                         </td>
-                                        <td className="py-3 text-neutral">
-                                            {reservation.date}
-                                        </td>
+                                        <td className="py-3 text-neutral">{reservation.date}</td>
                                         <td className="py-3 text-neutral">
                                             {reservation.time}
                                         </td>
@@ -324,7 +324,13 @@ export default function Dashboard() {
 
 const recentActivities = [
     {
-        description: "Conference room 'A' reserved",
+        description: (
+            <span>
+        Conference room{" "}
+                <span className="bg-blue-100 text-blue-800 px-2 rounded">A</span>{" "}
+                reserved
+      </span>
+        ),
         time: "5 minutes ago",
         color: "bg-primary",
     },
@@ -339,7 +345,13 @@ const recentActivities = [
         color: "bg-accent",
     },
     {
-        description: "Parking spot 'B4' reserved",
+        description: (
+            <span>
+        Parking spot{" "}
+                <span className="bg-green-100 text-green-800 px-2 rounded">B4</span>{" "}
+                reserved
+      </span>
+        ),
         time: "5 hours ago",
         color: "bg-primary",
     },

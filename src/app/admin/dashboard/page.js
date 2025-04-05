@@ -5,25 +5,56 @@ import {PulseLoader} from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import SkeletonTable from "@/components/ui/SkeletonTable";
 
-// Sample admin data arrays:
+// Updated admin recent activities with colored highlights.
 const adminRecentActivities = [
     {
-        description: "User John Doe created",
+        description: (
+            <span>
+        User{" "}
+                <span className="bg-blue-100 text-blue-800 px-2 rounded hover:bg-[var(--body-bg)] cursor-pointer">
+          John Doe
+        </span>{" "}
+                created
+      </span>
+        ),
         time: "5 minutes ago",
         color: "bg-primary",
     },
     {
-        description: "Reservation for Conference Room updated",
+        description: (
+            <span>
+        Reservation for{" "}
+                <span className="bg-blue-100 text-blue-800 px-2 rounded hover:bg-[var(--body-bg)] cursor-pointer">
+          Conference Room
+        </span>{" "}
+                updated
+      </span>
+        ),
         time: "20 minutes ago",
         color: "bg-secondary",
     },
     {
-        description: "Order #102 processed",
+        description: (
+            <span>
+        Order{" "}
+                <span className="bg-blue-100 text-blue-800 px-2 rounded hover:bg-[var(--body-bg)] cursor-pointer">
+          #102
+        </span>{" "}
+                processed
+      </span>
+        ),
         time: "1 hour ago",
         color: "bg-accent",
     },
     {
-        description: "Notification sent to user Jane Smith",
+        description: (
+            <span>
+        Notification sent to user{" "}
+                <span className="bg-blue-100 text-blue-800 px-2 rounded hover:bg-[var(--body-bg)] cursor-pointer">
+          Jane Smith
+        </span>
+      </span>
+        ),
         time: "2 hours ago",
         color: "bg-primary",
     },
@@ -130,7 +161,9 @@ export default function AdminDashboard() {
                         ) : (
                             <>
                                 <p className="text-3xl font-bold text-primary">120</p>
-                                <p className="text-accent text-sm mt-2">↑ 5% from last week</p>
+                                <p className="text-accent text-sm mt-2">
+                                    ↑ 5% from last week
+                                </p>
                             </>
                         )}
                     </div>
@@ -143,7 +176,9 @@ export default function AdminDashboard() {
                         ) : (
                             <>
                                 <p className="text-3xl font-bold text-primary">35</p>
-                                <p className="text-accent text-sm mt-2">↑ 10% from last week</p>
+                                <p className="text-accent text-sm mt-2">
+                                    ↑ 10% from last week
+                                </p>
                             </>
                         )}
                     </div>
@@ -156,7 +191,9 @@ export default function AdminDashboard() {
                         ) : (
                             <>
                                 <p className="text-3xl font-bold text-primary">12</p>
-                                <p className="text-accent text-sm mt-2">↓ 3% from last week</p>
+                                <p className="text-accent text-sm mt-2">
+                                    ↓ 3% from last week
+                                </p>
                             </>
                         )}
                     </div>
@@ -191,13 +228,21 @@ export default function AdminDashboard() {
                                 {adminRecentActivities.map((activity, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0"
+                                        className="flex items-center justify-between pb-3 border-b border-accent last:border-0"
                                     >
-                                        <div className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}/>
-                                        <div>
-                                            <p className="text-neutral">{activity.description}</p>
-                                            <p className="text-sm text-accent">{activity.time}</p>
+                                        <div className="flex items-start space-x-3">
+                                            <div
+                                                className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}
+                                            ></div>
+                                            <div>
+                                                <p className="text-neutral">{activity.description}</p>
+                                                <p className="text-sm text-accent">{activity.time}</p>
+                                            </div>
                                         </div>
+                                        {/* Info icon to go directly to the activity details */}
+                                        <a href="/admin/activity" className="cursor-pointer">
+                                            <i className="fa fa-info-circle text-xl text-primary"></i>
+                                        </a>
                                     </div>
                                 ))}
                             </div>
@@ -246,17 +291,17 @@ export default function AdminDashboard() {
                                 {adminUpcomingReservations.map((reservation, index) => (
                                     <tr
                                         key={index}
-                                        className="border-b border-accent last:border-0"
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">{reservation.resource}</td>
                                         <td className="py-3 text-neutral">{reservation.date}</td>
                                         <td className="py-3 text-neutral">{reservation.time}</td>
                                         <td className="py-3">
-                        <span
-                            className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}
-                        >
-                          {reservation.status}
-                        </span>
+            <span
+                className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}
+            >
+              {reservation.status}
+            </span>
                                         </td>
                                     </tr>
                                 ))}
@@ -272,7 +317,9 @@ export default function AdminDashboard() {
                         Upcoming Orders
                     </h2>
                     {loading ? (
-                        <SkeletonTable columns={["User", "Item", "Type", "Delivery Date"]}/>
+                        <SkeletonTable
+                            columns={["User", "Item", "Type", "Delivery Date"]}
+                        />
                     ) : (
                         <div className="card overflow-x-auto">
                             <table className="w-full">
@@ -288,7 +335,7 @@ export default function AdminDashboard() {
                                 {adminUpcomingOrders.map((order, index) => (
                                     <tr
                                         key={index}
-                                        className="border-b border-accent last:border-0"
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">{order.user}</td>
                                         <td className="py-3 text-neutral">{order.item}</td>
