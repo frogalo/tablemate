@@ -1,19 +1,21 @@
 "use client";
 
-import {useEffect, useState} from "react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlus,
     faTimes,
     faEdit,
     faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import { ClipLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import UserForm from "@/components/forms/UserForm";
 
 export default function AdminUsers() {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [filterText, setFilterText] = useState("");
@@ -25,10 +27,16 @@ export default function AdminUsers() {
 
     useEffect(() => {
         async function fetchUsers() {
-            const response = await fetch("/api/users");
-            if (response.ok) {
-                const data = await response.json();
-                setUsers(data);
+            try {
+                const response = await fetch("/api/users");
+                if (response.ok) {
+                    const data = await response.json();
+                    setUsers(data);
+                }
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -86,15 +94,15 @@ export default function AdminUsers() {
 
     // Instead of using window.confirm, show the confirm modal
     const handleRemoveUserClick = (user) => {
-        setDeleteConfirm({show: true, user});
+        setDeleteConfirm({ show: true, user });
     };
 
     const handleCancelDelete = () => {
-        setDeleteConfirm({show: false, user: null});
+        setDeleteConfirm({ show: false, user: null });
     };
 
     const handleConfirmDelete = async () => {
-        const {user} = deleteConfirm;
+        const { user } = deleteConfirm;
         try {
             const res = await fetch(`/api/users/${user.id}`, {
                 method: "DELETE",
@@ -107,7 +115,7 @@ export default function AdminUsers() {
         } catch (err) {
             console.error("Error deleting user:", err);
         } finally {
-            setDeleteConfirm({show: false, user: null});
+            setDeleteConfirm({ show: false, user: null });
         }
     };
 
@@ -120,7 +128,7 @@ export default function AdminUsers() {
                         onClick={handleOpenAddModal}
                         className="btn-primary transition-all px-6 py-3 text-lg cursor-pointer"
                     >
-                        <FontAwesomeIcon icon={faPlus} className="mr-2"/>
+                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         Add User
                     </button>
                 </div>
@@ -154,7 +162,12 @@ export default function AdminUsers() {
                     </div>
                 </div>
 
-                {filteredUsers.length > 0 ? (
+                {/* User List Section */}
+                {loading ? (
+                    <div className="flex justify-center items-center py-12">
+                        <ClipLoader size={50} color={"#123abc"} />
+                    </div>
+                ) : filteredUsers.length > 0 ? (
                     <ul className="space-y-2">
                         {filteredUsers.map((user) => (
                             <li
@@ -176,14 +189,14 @@ export default function AdminUsers() {
                                         className="cursor-pointer text-blue-500 hover:text-blue-600 px-2 py-2 text-xl"
                                         type="button"
                                     >
-                                        <FontAwesomeIcon icon={faEdit}/>
+                                        <FontAwesomeIcon icon={faEdit} />
                                     </button>
                                     <button
                                         onClick={() => handleRemoveUserClick(user)}
                                         className="cursor-pointer text-red-500 hover:text-red-600 px-2 py-2 text-xl"
                                         type="button"
                                     >
-                                        <FontAwesomeIcon icon={faTrash}/>
+                                        <FontAwesomeIcon icon={faTrash} />
                                     </button>
                                 </div>
                             </li>
@@ -208,7 +221,7 @@ export default function AdminUsers() {
                                 onClick={handleCloseModal}
                                 className="absolute top-2 right-2 text-neutral hover:text-secondary cursor-pointer"
                             >
-                                <FontAwesomeIcon icon={faTimes}/>
+                                <FontAwesomeIcon icon={faTimes} />
                             </button>
                             <h2 className="text-2xl mb-4 text-primary">
                                 {editingUser ? "Edit User" : "Add New User"}
@@ -239,7 +252,8 @@ export default function AdminUsers() {
                             <p className="mb-6">
                                 Are you sure you want to delete{" "}
                                 <span className="font-medium">
-                  {deleteConfirm.user.firstName} {deleteConfirm.user.lastName}
+                  {deleteConfirm.user.firstName}{" "}
+                                    {deleteConfirm.user.lastName}
                 </span>
                                 ?
                             </p>
@@ -256,7 +270,7 @@ export default function AdminUsers() {
                                     className="cursor-pointer px-10 py-4 text-xl text-red-500 hover:text-red-600"
                                     type="button"
                                 >
-                                    <FontAwesomeIcon icon={faTrash}/> Delete
+                                    <FontAwesomeIcon icon={faTrash} /> Delete
                                 </button>
                             </div>
                         </div>

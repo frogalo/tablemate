@@ -5,6 +5,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import ReservationForm from "@/components/forms/ReservationForm";
 import OrderFoodForm from "@/components/forms/OrderFoodForm";
 import ITEquipmentForm from "@/components/forms/ITEquipmentForm";
+import { PulseLoader } from "react-spinners";
+import SkeletonTable from "@/components/ui/SkeletonTable";
 
 // Returns a background/text color class based on status
 function getStatusBg(status) {
@@ -26,7 +28,7 @@ export default function Dashboard() {
     const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
     const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
 
-    // To change modal states more easily
+    // For handling active form type (for reservations)
     const [activeFormType, setActiveFormType] = useState(null);
     const resetActiveFormType = () => setActiveFormType(null);
 
@@ -37,7 +39,7 @@ export default function Dashboard() {
         alert(`${formName} : Data submitted.`);
     };
 
-    // Fetch functions
+    // Fetch functions (replace with actual API calls in production)
     useEffect(() => {
         async function fetchOrders() {
             try {
@@ -80,66 +82,119 @@ export default function Dashboard() {
         fetchRestaurants();
     }, []);
 
+    // Simulated loading state (1000ms)
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <ProtectedRoute>
             <div className="fade-in">
                 {/* Dashboard Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-                    <p className="text-neutral mt-2">Welcome back to your workspace</p>
+                    <p className="text-neutral mt-2">
+                        Welcome back to your workspace
+                    </p>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="card">
+                    <div className="card p-4">
                         <h3 className="text-neutral mb-2">Active Reservations</h3>
-                        <p className="text-3xl font-bold text-primary">12</p>
-                        <p className="text-accent text-sm mt-2">↑ 8% from last week</p>
+                        {loading ? (
+                            <div className="flex justify-center items-center h-12">
+                                <PulseLoader color="#3b82f6" size={24} />
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-3xl font-bold text-primary">12</p>
+                                <p className="text-accent text-sm mt-2">
+                                    ↑ 8% from last week
+                                </p>
+                            </>
+                        )}
                     </div>
-                    <div className="card">
+                    <div className="card p-4">
                         <h3 className="text-neutral mb-2">Pending Orders</h3>
-                        <p className="text-3xl font-bold text-primary">5</p>
-                        <p className="text-accent text-sm mt-2">↓ 2% from last week</p>
+                        {loading ? (
+                            <div className="flex justify-center items-center h-12">
+                                <PulseLoader color="#3b82f6" size={24} />
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-3xl font-bold text-primary">5</p>
+                                <p className="text-accent text-sm mt-2">
+                                    ↓ 2% from last week
+                                </p>
+                            </>
+                        )}
                     </div>
-                    <div className="card">
+                    <div className="card p-4">
                         <h3 className="text-neutral mb-2">Available Resources</h3>
-                        <p className="text-3xl font-bold text-primary">24</p>
-                        <p className="text-accent text-sm mt-2">of 30 total</p>
+                        {loading ? (
+                            <div className="flex justify-center items-center h-12">
+                                <PulseLoader color="#3b82f6" size={24} />
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-3xl font-bold text-primary">24</p>
+                                <p className="text-accent text-sm mt-2">of 30 total</p>
+                            </>
+                        )}
                     </div>
-                    <div className="card">
+                    <div className="card p-4">
                         <h3 className="text-neutral mb-2">IT Equipment</h3>
-                        <p className="text-3xl font-bold text-primary">18</p>
-                        <p className="text-accent text-sm mt-2">items available</p>
+                        {loading ? (
+                            <div className="flex justify-center items-center h-12">
+                                <PulseLoader color="#3b82f6" size={24} />
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-3xl font-bold text-primary">18</p>
+                                <p className="text-accent text-sm mt-2">items available</p>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 {/* Recent Activity and Quick Actions */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Recent Activity */}
-                    <div className="card">
+                    <div className="card p-6">
                         <h2 className="text-xl font-semibold text-primary mb-4">
                             Recent Activity
                         </h2>
-                        <div className="space-y-4">
-                            {recentActivities.map((activity, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0"
-                                >
+                        {loading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <PulseLoader color="#3b82f6" size={24} />
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {recentActivities.map((activity, index) => (
                                     <div
-                                        className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}
-                                    ></div>
-                                    <div>
-                                        <p className="text-neutral">{activity.description}</p>
-                                        <p className="text-sm text-accent">{activity.time}</p>
+                                        key={index}
+                                        className="flex items-start space-x-3 pb-3 border-b border-accent last:border-0"
+                                    >
+                                        <div
+                                            className={`w-2 h-2 mt-2 rounded-full ${activity.color}`}
+                                        ></div>
+                                        <div>
+                                            <p className="text-neutral">{activity.description}</p>
+                                            <p className="text-sm text-accent">{activity.time}</p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="card">
+                    {/* Quick Actions (unchanged) */}
+                    <div className="card p-6">
                         <h2 className="text-xl font-semibold text-primary mb-8">
                             Quick Actions
                         </h2>
@@ -147,10 +202,10 @@ export default function Dashboard() {
                             {quickActions.map((action, index) => (
                                 <a
                                     key={index}
-                                    href="#" // Replace URLs to prevent automatic page reload
+                                    href="#" // Prevent automatic navigation
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        // Set the correct ActiveFormType based on button pressed
+                                        // Set the active form type and open the appropriate modal
                                         switch (action.label) {
                                             case "Room Reservation":
                                                 setActiveFormType("ROOM");
@@ -193,37 +248,51 @@ export default function Dashboard() {
                     <h2 className="text-xl font-semibold text-primary mb-4">
                         Upcoming Reservations
                     </h2>
-                    <div className="card">
-                        <table className="w-full">
-                            <thead>
-                            <tr className="border-b border-accent">
-                                <th className="text-left pb-3 text-neutral">Resource</th>
-                                <th className="text-left pb-3 text-neutral">Date</th>
-                                <th className="text-left pb-3 text-neutral">Time</th>
-                                <th className="text-left pb-3 text-neutral">Status</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {upcomingReservations.map((reservation, index) => (
-                                <tr
-                                    key={index}
-                                    className="border-b border-accent last:border-0"
-                                >
-                                    <td className="py-3 text-neutral">{reservation.resource}</td>
-                                    <td className="py-3 text-neutral">{reservation.date}</td>
-                                    <td className="py-3 text-neutral">{reservation.time}</td>
-                                    <td className="py-3">
-                      <span
-                          className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}
-                      >
-                        {reservation.status}
-                      </span>
-                                    </td>
+                    {loading ? (
+                        <SkeletonTable
+                            columns={["Resource", "Date", "Time", "Status"]}
+                        />
+                    ) : (
+                        <div className="card overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                <tr className="border-b border-accent">
+                                    <th className="text-left pb-3 text-neutral">
+                                        Resource
+                                    </th>
+                                    <th className="text-left pb-3 text-neutral">Date</th>
+                                    <th className="text-left pb-3 text-neutral">Time</th>
+                                    <th className="text-left pb-3 text-neutral">Status</th>
                                 </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                {upcomingReservations.map((reservation, index) => (
+                                    <tr
+                                        key={index}
+                                        className="border-b border-accent last:border-0"
+                                    >
+                                        <td className="py-3 text-neutral">
+                                            {reservation.resource}
+                                        </td>
+                                        <td className="py-3 text-neutral">
+                                            {reservation.date}
+                                        </td>
+                                        <td className="py-3 text-neutral">
+                                            {reservation.time}
+                                        </td>
+                                        <td className="py-3">
+                        <span
+                            className={`px-2 py-1 rounded-full text-xs ${reservation.statusClass}`}
+                        >
+                          {reservation.status}
+                        </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
 
                 {/* Load Form Modals */}
@@ -233,8 +302,10 @@ export default function Dashboard() {
                         setIsReservationModalOpen(false);
                         resetActiveFormType();
                     }}
-                    onSubmit={(data) => handleFormSubmit(data, `ReservationForm - ${activeFormType}`)}
-                    resourceType={activeFormType} // The only different property to handle generic
+                    onSubmit={(data) =>
+                        handleFormSubmit(data, `ReservationForm - ${activeFormType}`)
+                    }
+                    resourceType={activeFormType} // To prefill data based on resource type
                 />
                 <OrderFoodForm
                     isOpen={isFoodModalOpen}
@@ -326,13 +397,6 @@ const upcomingReservations = [
         resource: "Parking B4",
         date: "23 Mar 2024",
         time: "All day",
-        status: "Confirmed",
-        statusClass: "bg-green-100 text-green-800",
-    },
-    {
-        resource: "Meeting Room 3",
-        date: "24 Mar 2024",
-        time: "11:00 - 12:00",
         status: "Confirmed",
         statusClass: "bg-green-100 text-green-800",
     },

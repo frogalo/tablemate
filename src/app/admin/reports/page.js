@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ClipLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Generic list item with a standardized action slot
@@ -26,7 +27,6 @@ function ListItem({ report, onDelete }) {
                     <i className="fa fa-download mr-2"></i>
                     Download
                 </a>
-                {/* Add your actual delete function here */}
                 <button
                     onClick={() => onDelete(report.id)}
                     className="text-red-500 hover:text-red-700"
@@ -41,6 +41,7 @@ function ListItem({ report, onDelete }) {
 export default function AdminReports() {
     // State to store the list of generated reports
     const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     // Function to fetch the reports from an API endpoint
     useEffect(() => {
@@ -70,6 +71,7 @@ export default function AdminReports() {
             ];
 
             setReports(data);
+            setLoading(false);
         }
 
         fetchReports();
@@ -80,7 +82,6 @@ export default function AdminReports() {
         alert(`Generating ${reportType} Report! This action is simulated.`);
     };
 
-    // Handler
     const handleDeleteReport = (id) => {
         setReports(reports.filter((report) => report.id !== id));
     };
@@ -131,7 +132,11 @@ export default function AdminReports() {
                     </h2>
 
                     <div className="card">
-                        {reports.length > 0 ? (
+                        {loading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <ClipLoader size={50} color={"#123abc"} />
+                            </div>
+                        ) : reports.length > 0 ? (
                             <ul className="divide-y divide-accent">
                                 {reports.map((report) => (
                                     <ListItem

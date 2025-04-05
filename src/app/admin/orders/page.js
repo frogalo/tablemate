@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RestaurantForm from "@/components/forms/RestaurantForm";
 import AccessoryForm from "@/components/forms/AccessoryForm";
-import { PulseLoader } from "react-spinners"; // Import PulseLoader
+import SkeletonTable from "@/components/ui/SkeletonTable";
 
 // Returns a background/text color class based on status
 function getStatusBg(status) {
@@ -100,10 +100,11 @@ export default function AdminOrders() {
 
     const handleAddAccessory = (newAccessory) => {
         // For creating a new accessory.
-        // If editing, update the accessory list accordingly.
         if (accessoryToEdit) {
             setAccessories(
-                accessories.map((acc) => (acc.id === newAccessory.id ? newAccessory : acc))
+                accessories.map((acc) =>
+                    acc.id === newAccessory.id ? newAccessory : acc
+                )
             );
             setAccessoryToEdit(null);
         } else {
@@ -152,7 +153,9 @@ export default function AdminOrders() {
 
             // Update local state if deletion was successful.
             if (type === "restaurant") {
-                setRestaurants(restaurants.filter((restaurant) => restaurant.id !== item.id));
+                setRestaurants(
+                    restaurants.filter((restaurant) => restaurant.id !== item.id)
+                );
             } else if (type === "accessory") {
                 setAccessories(
                     accessories.filter((accessory) => accessory.id !== item.id)
@@ -185,9 +188,9 @@ export default function AdminOrders() {
                         IT Accessories Orders
                     </h2>
                     {loadingOrders ? (
-                        <div className="flex items-center justify-center">
-                            <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
-                        </div>
+                        <SkeletonTable
+                            columns={["ID", "User", "Item", "Status", "Actions"]}
+                        />
                     ) : itOrders.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
@@ -275,9 +278,9 @@ export default function AdminOrders() {
                         </button>
                     </div>
                     {loadingAccessories ? (
-                        <div className="flex items-center justify-center">
-                            <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
-                        </div>
+                        <SkeletonTable
+                            columns={["ID", "Accessory Name", "In Storage", "With Users", "Actions"]}
+                        />
                     ) : accessories.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
@@ -321,7 +324,9 @@ export default function AdminOrders() {
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
                                             <button
                                                 type="button"
-                                                onClick={() => handleEditItem(accessory, "accessory")}
+                                                onClick={() =>
+                                                    handleEditItem(accessory, "accessory")
+                                                }
                                                 className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
                                             >
                                                 <i className="fa fa-pencil"></i>
@@ -346,44 +351,6 @@ export default function AdminOrders() {
                     )}
                 </section>
 
-                {/* Confirmation modal for deleting an accessory */}
-                {accessoryToDelete && (
-                    <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
-                        <div
-                            className="absolute inset-0 bg-black opacity-50"
-                            onClick={() => setAccessoryToDelete(null)}
-                        ></div>
-                        <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
-                            <h3 className="text-xl font-bold text-primary mb-4">
-                                Confirm Delete
-                            </h3>
-                            <p className="mb-6 text-neutral">
-                                Are you sure you want to delete accessory &quot;
-                                {accessoryToDelete.name}&quot;?
-                            </p>
-                            <div className="flex justify-end space-x-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setAccessoryToDelete(null)}
-                                    className="px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        handleRemoveItem(accessoryToDelete, "accessory");
-                                        setAccessoryToDelete(null);
-                                    }}
-                                    className="cursor-pointer  px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 {/* Restaurants Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
@@ -401,9 +368,9 @@ export default function AdminOrders() {
                         </button>
                     </div>
                     {loadingRestaurants ? (
-                        <div className="flex items-center justify-center">
-                            <PulseLoader color="rgb(var(--color-primary-500))" size={16} />
-                        </div>
+                        <SkeletonTable
+                            columns={["ID", "Name", "Email", "Orders", "Actions"]}
+                        />
                     ) : restaurants.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
@@ -502,7 +469,45 @@ export default function AdminOrders() {
                                         handleRemoveItem(restaurantToDelete, "restaurant");
                                         setRestaurantToDelete(null);
                                     }}
-                                    className="cursor-pointer  px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                                    className="cursor-pointer px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Confirmation modal for deleting an accessory */}
+                {accessoryToDelete && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
+                        <div
+                            className="absolute inset-0 bg-black opacity-50"
+                            onClick={() => setAccessoryToDelete(null)}
+                        ></div>
+                        <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
+                            <h3 className="text-xl font-bold text-primary mb-4">
+                                Confirm Delete
+                            </h3>
+                            <p className="mb-6 text-neutral">
+                                Are you sure you want to delete accessory &quot;
+                                {accessoryToDelete.name}&quot;?
+                            </p>
+                            <div className="flex justify-end space-x-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setAccessoryToDelete(null)}
+                                    className="px-4 py-2 rounded bg-gray-300 text-neutral hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleRemoveItem(accessoryToDelete, "accessory");
+                                        setAccessoryToDelete(null);
+                                    }}
+                                    className="cursor-pointer px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
                                 >
                                     Delete
                                 </button>
@@ -519,7 +524,6 @@ export default function AdminOrders() {
                         setAccessoryToEdit(null);
                     }}
                     onSave={handleAddAccessory}
-                    // Pass accessoryToEdit so that AccessoryForm can prefill data if editing.
                     initialAccessory={accessoryToEdit}
                 />
                 <RestaurantForm
@@ -529,7 +533,6 @@ export default function AdminOrders() {
                         setRestaurantToEdit(null);
                     }}
                     onSave={handleAddCompany}
-                    // Pass restaurantToEdit so that RestaurantForm can prefill data if editing.
                     initialRestaurant={restaurantToEdit}
                 />
             </div>

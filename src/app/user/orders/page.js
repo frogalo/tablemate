@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import OrderFoodForm from "@/components/forms/OrderFoodForm";
 import ITEquipmentForm from "@/components/forms/ITEquipmentForm";
+import SkeletonTable from "@/components/ui/SkeletonTable";
 
 // Implement color from different status
 function getStatusClass(status) {
@@ -14,21 +15,26 @@ function getStatusClass(status) {
     return "bg-red-100 text-red-800"; // default
 }
 
-// The core code has started.
-export default function AdminOrders() {
+export default function UserOrders() {
     // List being set to display.
     const [itOrders, setItOrders] = useState([]);
     const [foodOrders, setFoodOrders] = useState([]);
     const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
     const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
 
-    // Add to UI based on a setting, will load data.
+    // Simulate data loading for orders (2 seconds)
+    const [ordersLoading, setOrdersLoading] = useState(true);
     useEffect(() => {
-        // Add data for each group:
-        async function loadMockData() {
-            // Load info and set to an object: to match. Or do that later on the code to get correct loading action.
+        // Mimic API delay
+        const timer = setTimeout(() => {
+            setOrdersLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
 
-            // Implement a "fake" order process so that you know this is working
+    // Load mock data for orders
+    useEffect(() => {
+        async function loadMockData() {
             const mockupFoodOrders = [
                 {
                     id: 1,
@@ -39,7 +45,7 @@ export default function AdminOrders() {
                     menuItem: "Pizza",
                     price: 12.99,
                     orderDate: "2024-05-04",
-                    status: "Shipped", // Implement for JSON format later that it can use
+                    status: "Shipped",
                 },
                 {
                     id: 2,
@@ -61,9 +67,9 @@ export default function AdminOrders() {
                     itemId: 201,
                     userId: 2001,
                     equipmentType: "Laptop",
-                    price: 1200.00,
+                    price: 1200.0,
                     orderDate: "2024-05-02",
-                    status: "Delivered", // Again the text with JSON
+                    status: "Delivered",
                 },
                 {
                     id: 4,
@@ -71,13 +77,12 @@ export default function AdminOrders() {
                     itemId: 202,
                     userId: 2002,
                     equipmentType: "Keyboard",
-                    price: 75.00,
+                    price: 75.0,
                     orderDate: "2024-05-01",
-                    status: "Processing", // Use the "String" format here. To match to make easier all to come in sync, and to be able to make function for each object to have all be correct and be in data and be tested with.
+                    status: "Processing",
                 },
             ];
 
-            // Call object from component so this happens properly
             setFoodOrders(mockupFoodOrders);
             setItOrders(mockupITOrders);
         }
@@ -85,12 +90,11 @@ export default function AdminOrders() {
         loadMockData();
     }, []);
 
-    // Void components which won't affect it.
+    // Handlers for opening modals
     const handleAddFoodOrder = () => {
         setIsFoodModalOpen(true);
     };
 
-    //Set to perform
     const handleAddITEquipmentOrder = () => {
         setIsEquipmentModalOpen(true);
     };
@@ -98,7 +102,7 @@ export default function AdminOrders() {
     return (
         <ProtectedRoute>
             <div className="p-8 space-y-12">
-                {/* The code here that displays to  */}
+                {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold text-primary mb-2">
                         Admin Orders
@@ -109,11 +113,10 @@ export default function AdminOrders() {
                     </p>
                 </div>
 
-                {/* Show card to add an order, from the side that is for a new meal.*/}
+                {/* Food Orders Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-primary">Food Orders</h2>
-                        {/* Call component, test, make sure all data comes across based on settings made to function.*/}
                         <button
                             onClick={handleAddFoodOrder}
                             className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
@@ -121,17 +124,30 @@ export default function AdminOrders() {
                             Create New Food Order
                         </button>
                     </div>
-                    {foodOrders.length > 0 ? (
+                    {ordersLoading ? (
+                        <SkeletonTable
+                            columns={[
+                                "Order ID",
+                                "Item",
+                                "User ID",
+                                "Price",
+                                "Order Date",
+                                "Status",
+                                "Actions",
+                            ]}
+                        />
+                    ) : foodOrders.length > 0 ? (
                         <div className="card">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
-                                    <th className="text-left pb-3 text-neutral">Order ID</th>
+                                    <th className="text-left pb-3 text-neutral">
+                                        Order ID
+                                    </th>
                                     <th className="text-left pb-3 text-neutral">Item</th>
                                     <th className="text-left pb-3 text-neutral">User ID</th>
                                     <th className="text-left pb-3 text-neutral">Price</th>
                                     <th className="text-left pb-3 text-neutral">Order Date</th>
-                                    {/* The center set properties now */}
                                     <th className="text-center pb-3 text-neutral">Status</th>
                                     <th className="text-center pb-3 text-neutral">Actions</th>
                                 </tr>
@@ -149,7 +165,6 @@ export default function AdminOrders() {
                                         <td className="py-3 text-neutral">{order.userId}</td>
                                         <td className="py-3 text-neutral">${order.price}</td>
                                         <td className="py-3 text-neutral">{order.orderDate}</td>
-                                        {/* Implemented status functions and UI functions that present user a choice of what could/can be done with properties from that item object. All styles set from a function! */}
                                         <td className="py-3 text-center">
                         <span
                             className={`px-2 py-1 rounded-full text-xs ${getStatusClass(
@@ -159,11 +174,7 @@ export default function AdminOrders() {
                           {order.status}
                         </span>
                                         </td>
-                                        {/* The actions here, set and properly formated with function calls to do just that . The center function is the big key here. This section of code displays the component of the current function when is on "loading or setting new state." It is recommended that any loading and or UI features for these functions will be here with components or logic.*/}
                                         <td className="py-3 text-center">
-                                            {/* Can make it so that all functions called now have proper set.
-                   - It's recommended that you properly set and load components that you may make, to make your process way better in the long run.
-                   - Also, call or perform functions to run only and exactly what code it must perform. If you call all to the same or the same to all, you might not want that for certain processes so make the load functions and their UI clear, concise and organized for what might present the best code, with less problems when doing these kinds of complex components. There will not be a case that is universal for all processes all the time so you need to be set with all data to make it come across to you.*/}
                                             {order.status === "Processing" && (
                                                 <>
                                                     <button className="mx-2 text-blue-500 hover:text-blue-700">
@@ -185,13 +196,12 @@ export default function AdminOrders() {
                     )}
                 </section>
 
-                {/* Load table where it is set if it is IT Equip */}
+                {/* IT Equipment Orders Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-primary">
                             IT Equipment Orders
                         </h2>
-                        {/* Set or generate new JSON */}
                         <button
                             onClick={handleAddITEquipmentOrder}
                             className="btn-primary px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
@@ -199,13 +209,23 @@ export default function AdminOrders() {
                             Create New IT Equipment Order
                         </button>
                     </div>
-                    {itOrders.length > 0 ? (
+                    {ordersLoading ? (
+                        <SkeletonTable
+                            columns={[
+                                "Order ID",
+                                "Item",
+                                "User ID",
+                                "Price",
+                                "Order Date",
+                                "Status",
+                                "Actions",
+                            ]}
+                        />
+                    ) : itOrders.length > 0 ? (
                         <div className="card">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
-                                    {/* Implement or change based on what you are loading at properties.
-               - You will have to match those and then test and set the correct functions, code, implementation with all test functions to call or implement data that has been pulled using async and load functions and then test it to be functional and the format proper.*/}
                                     <th className="text-left pb-3 text-neutral">Order ID</th>
                                     <th className="text-left pb-3 text-neutral">Item</th>
                                     <th className="text-left pb-3 text-neutral">User ID</th>
@@ -215,7 +235,6 @@ export default function AdminOrders() {
                                     <th className="text-center pb-3 text-neutral">Actions</th>
                                 </tr>
                                 </thead>
-                                {/* Here or where all code is pulled. That will depend on where the data must take place,  as I’ve said before.*/}
                                 <tbody>
                                 {itOrders.map((order) => (
                                     <tr
@@ -227,7 +246,6 @@ export default function AdminOrders() {
                                         <td className="py-3 text-neutral">{order.userId}</td>
                                         <td className="py-3 text-neutral">${order.price}</td>
                                         <td className="py-3 text-neutral">{order.orderDate}</td>
-                                        {/* Function gets used at each object in each row to set with JSON info the component properties. Or You can create and format for that function, and add it from here or on this step. The objective is always the best. */}
                                         <td className="py-3 text-center">
                         <span
                             className={`px-2 py-1 rounded-full text-xs ${getStatusClass(
@@ -238,7 +256,6 @@ export default function AdminOrders() {
                         </span>
                                         </td>
                                         <td className="py-3 text-center">
-                                            {/* You can also add what more actions are available based on the object you implement.  Just test or add to these for what that set does or adds to a full component implementation with more code and details based on it . */}
                                             {order.status === "Processing" && (
                                                 <>
                                                     <button className="mx-2 text-blue-500 hover:text-blue-700">
@@ -260,18 +277,84 @@ export default function AdminOrders() {
                     )}
                 </section>
 
-                {/* Implement  Forms that now you set the core of how they work but remember: these still have that loading set before set! So with load functions to manage code on loading and if there's ever  API issues it won't cause core parts of web layout to mess up  Also they are loaded with functions that are  vois and used in API.Js*/}
+                {/* Load Form Modals */}
                 <OrderFoodForm
                     isOpen={isFoodModalOpen}
                     onClose={() => setIsFoodModalOpen(false)}
-                    onSubmit={() => console.log("Submitting Food data. ")}
+                    onSubmit={() => console.log("Submitting Food data.")}
                 />
                 <ITEquipmentForm
                     isOpen={isEquipmentModalOpen}
                     onClose={() => setIsEquipmentModalOpen(false)}
-                    onSubmit={() => console.log("Submitting ITEquipment data. ")}
+                    onSubmit={() => console.log("Submitting ITEquipment data.")}
                 />
             </div>
         </ProtectedRoute>
     );
 }
+
+const recentActivities = [
+    {
+        description: "Conference room 'A' reserved",
+        time: "5 minutes ago",
+        color: "bg-primary",
+    },
+    {
+        description: "New IT equipment order submitted",
+        time: "1 hour ago",
+        color: "bg-secondary",
+    },
+    {
+        description: "Desk reservation cancelled",
+        time: "3 hours ago",
+        color: "bg-accent",
+    },
+    {
+        description: "Parking spot 'B4' reserved",
+        time: "5 hours ago",
+        color: "bg-primary",
+    },
+];
+
+const quickActions = [
+    {
+        label: "Room Reservation",
+        href: "#",
+        icon: "fa-door-open",
+    },
+    {
+        label: "Parking Spot Reservation",
+        href: "#",
+        icon: "fa-parking",
+    },
+    {
+        label: "Desk Reservation",
+        href: "#",
+        icon: "fa-chair",
+    },
+    {
+        label: "Conference Room Reservation",
+        href: "#",
+        icon: "fa-building",
+    },
+    {
+        label: "Order Food",
+        href: "#",
+        icon: "fa-utensils",
+    },
+    {
+        label: "Order IT Equipment",
+        href: "#",
+        icon: "fa-laptop",
+    },
+];
+
+const upcomingReservations = [
+    {
+        resource: "Conference Room A",
+        date: "Today",
+        time: "14:00 - 15:00",
+        status: "Confirmed",
+        statusClass: "bg-green-100 text-green-800",
+    },
+];

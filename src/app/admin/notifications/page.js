@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PulseLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function AdminNotifications() {
@@ -88,6 +89,17 @@ export default function AdminNotifications() {
         },
     });
 
+    // Simulate loading state for notifications (replace with your API call as needed)
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        // Simulate fetch delay (1 second) for demonstration.
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     // Handler for notification content change
     const handleNotificationChange = (key, field, value) => {
         setNotifications({
@@ -98,6 +110,16 @@ export default function AdminNotifications() {
             },
         });
     };
+
+    if (loading) {
+        return (
+            <ProtectedRoute>
+                <div className="flex justify-center items-center h-screen">
+                    <PulseLoader color="#3b82f6" size={16} />
+                </div>
+            </ProtectedRoute>
+        );
+    }
 
     return (
         <ProtectedRoute>
@@ -131,7 +153,11 @@ export default function AdminNotifications() {
                                         id={`${key}-enabled`}
                                         checked={notification.enabled}
                                         onChange={(e) =>
-                                            handleNotificationChange(key, "enabled", e.target.checked)
+                                            handleNotificationChange(
+                                                key,
+                                                "enabled",
+                                                e.target.checked
+                                            )
                                         }
                                     />
                                     <span className="slider round"></span>

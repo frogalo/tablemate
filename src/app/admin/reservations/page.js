@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ClipLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Loading from "@/components/ui/Loading";
 import ResourceForm from "@/components/forms/ResourceForm";
 
 // Helper for resource type background colors.
@@ -87,19 +87,9 @@ export default function AdminResources() {
         const matchesName = resource.name
             .toLowerCase()
             .includes(filterName.toLowerCase());
-        const matchesType = filterType
-            ? resource.type === filterType
-            : true;
+        const matchesType = filterType ? resource.type === filterType : true;
         return matchesName && matchesType;
     });
-
-    if (loading) {
-        return (
-            <ProtectedRoute>
-                <Loading />
-            </ProtectedRoute>
-        );
-    }
 
     return (
         <ProtectedRoute>
@@ -109,7 +99,9 @@ export default function AdminResources() {
                         Admin Resources
                     </h1>
                     <p className="text-neutral">
-                        Manage available resources such as parking spots, desk spots, rooms, and conference rooms. These resources will later be available for user reservations.
+                        Manage available resources such as parking spots, desk spots, rooms, and
+                        conference rooms. These resources will later be available for user
+                        reservations.
                     </p>
                 </div>
 
@@ -154,8 +146,12 @@ export default function AdminResources() {
                             Add New Resource
                         </button>
                     </div>
-                    {filteredResources.length > 0 ? (
-                        <div className="card overflow-x-auto">
+                    <div className="card overflow-x-auto">
+                        {loading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <ClipLoader size={50} color={"#123abc"} />
+                            </div>
+                        ) : filteredResources.length > 0 ? (
                             <table className="table-fixed w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
@@ -185,7 +181,11 @@ export default function AdminResources() {
                                         <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell">
                                             {resource.id}
                                         </td>
-                                        <td className={`w-1/5 px-4 py-2 ${getResourceTypeBg(resource.type)}`}>
+                                        <td
+                                            className={`w-1/5 px-4 py-2 ${getResourceTypeBg(
+                                                resource.type
+                                            )}`}
+                                        >
                                             {resource.type}
                                         </td>
                                         <td className="w-1/5 px-4 py-2 text-neutral">
@@ -217,10 +217,10 @@ export default function AdminResources() {
                                 ))}
                                 </tbody>
                             </table>
-                        </div>
-                    ) : (
-                        <p className="text-neutral">No resources added yet.</p>
-                    )}
+                        ) : (
+                            <p className="text-neutral">No resources added yet.</p>
+                        )}
+                    </div>
                 </section>
 
                 {/* Confirmation modal for deleting a resource */}
