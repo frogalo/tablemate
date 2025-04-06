@@ -23,7 +23,7 @@ export default function Filters({
                                     customFilters,
                                 }) {
     return (
-        <div className="bg-card-bg rounded-lg p-4 mb-6 shadow-sm border border-neutral/20">
+        <div className="bg-card-bg rounded-lg p-4 mb-6 shadow-sm border border-neutral/20 bg-[var(--card-bg)] ">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                     {/* Search Input */}

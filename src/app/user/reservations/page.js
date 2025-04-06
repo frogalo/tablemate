@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ReservationForm from "@/components/forms/ReservationForm";
 import SkeletonTable from "@/components/ui/SkeletonTable";
-import Filters from "@/components/Filters";
 
 export default function UserReservations() {
     // Mock data organized by category
@@ -13,22 +12,10 @@ export default function UserReservations() {
     const [parkingReservations, setParkingReservations] = useState([]);
     const [conferenceReservations, setConferenceReservations] = useState([]);
 
-    // Filter states for each category
-    const [roomFilter, setRoomFilter] = useState("");
-    const [deskFilter, setDeskFilter] = useState("");
-    const [parkingFilter, setParkingFilter] = useState("");
-    const [conferenceFilter, setConferenceFilter] = useState("");
-
-    // For sorting (if needed) – here we simply toggle sort direction per category.
-    const [roomSortDirection, setRoomSortDirection] = useState("asc");
-    const [deskSortDirection, setDeskSortDirection] = useState("asc");
-    const [parkingSortDirection, setParkingSortDirection] = useState("asc");
-    const [conferenceSortDirection, setConferenceSortDirection] = useState("asc");
-
     // Modal state
     const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
-    // Active form type for reservations: "ROOM", "DESK", "PARKING", "CONFERENCE_ROOM"
+    // Active form type for reservations
     const [activeFormType, setActiveFormType] = useState(null);
     const resetActiveFormType = () => setActiveFormType(null);
 
@@ -115,59 +102,18 @@ export default function UserReservations() {
             setParkingReservations(mockupParkingReservations);
             setConferenceReservations(mockupConferenceReservations);
         }
+
         loadMockData();
     }, []);
 
-    // -- Filtering for each category --
-    const filteredRoomReservations = roomReservations.filter((res) =>
-        res.resource.toLowerCase().includes(roomFilter.toLowerCase())
-    );
-    const filteredDeskReservations = deskReservations.filter((res) =>
-        res.resource.toLowerCase().includes(deskFilter.toLowerCase())
-    );
-    const filteredParkingReservations = parkingReservations.filter((res) =>
-        res.resource.toLowerCase().includes(parkingFilter.toLowerCase())
-    );
-    const filteredConferenceReservations = conferenceReservations.filter((res) =>
-        res.resource.toLowerCase().includes(conferenceFilter.toLowerCase())
-    );
-
-    // Toggle sort (dummy functions—adjust sorting logic as needed)
-    const toggleRoomSortDirection = () =>
-        setRoomSortDirection(roomSortDirection === "asc" ? "desc" : "asc");
-    const toggleDeskSortDirection = () =>
-        setDeskSortDirection(deskSortDirection === "asc" ? "desc" : "asc");
-    const toggleParkingSortDirection = () =>
-        setParkingSortDirection(parkingSortDirection === "asc" ? "desc" : "asc");
-    const toggleConferenceSortDirection = () =>
-        setConferenceSortDirection(conferenceSortDirection === "asc" ? "desc" : "asc");
-
-    // Clear filters functions
-    const clearRoomFilters = () => {
-        setRoomFilter("");
-        setRoomSortDirection("asc");
-    };
-    const clearDeskFilters = () => {
-        setDeskFilter("");
-        setDeskSortDirection("asc");
-    };
-    const clearParkingFilters = () => {
-        setParkingFilter("");
-        setParkingSortDirection("asc");
-    };
-    const clearConferenceFilters = () => {
-        setConferenceFilter("");
-        setConferenceSortDirection("asc");
-    };
-
     return (
         <ProtectedRoute>
-            <div className="fade-in p-8 space-y-12">
+            <div className="fade-in">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Reservations</h1>
                     <p className="text-neutral mt-2">
-                        View and manage your reservations.
+                        View and manage your reservations
                     </p>
                 </div>
 
@@ -185,24 +131,10 @@ export default function UserReservations() {
                             Create New Room Reservation
                         </button>
                     </div>
-                    <Filters
-                        filterText={roomFilter}
-                        setFilterText={setRoomFilter}
-                        // No dropdown provided—pass null if not using
-                        filterOptions={null}
-                        selectedFilter={null}
-                        setSelectedFilter={null}
-                        sortField="Resource"
-                        sortDirection={roomSortDirection}
-                        handleSort={toggleRoomSortDirection}
-                        clearFilters={clearRoomFilters}
-                        totalCount={roomReservations.length}
-                        filteredCount={filteredRoomReservations.length}
-                    />
                     {loading ? (
                         <SkeletonTable columns={["Resource", "Date", "Time", "Status"]} />
-                    ) : filteredRoomReservations.length > 0 ? (
-                        <div className="card overflow-x-auto">
+                    ) : roomReservations.length > 0 ? (
+                        <div className="card">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
@@ -213,10 +145,10 @@ export default function UserReservations() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {filteredRoomReservations.map((reservation) => (
+                                {roomReservations.map((reservation, index) => (
                                     <tr
-                                        key={reservation.id}
-                                        className="border-b border-accent last:border-0"
+                                        key={index}
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">{reservation.resource}</td>
                                         <td className="py-3 text-neutral">{reservation.date}</td>
@@ -252,23 +184,10 @@ export default function UserReservations() {
                             Create New Desk Reservation
                         </button>
                     </div>
-                    <Filters
-                        filterText={deskFilter}
-                        setFilterText={setDeskFilter}
-                        filterOptions={null}
-                        selectedFilter={null}
-                        setSelectedFilter={null}
-                        sortField="Resource"
-                        sortDirection={deskSortDirection}
-                        handleSort={toggleDeskSortDirection}
-                        clearFilters={clearDeskFilters}
-                        totalCount={deskReservations.length}
-                        filteredCount={filteredDeskReservations.length}
-                    />
                     {loading ? (
                         <SkeletonTable columns={["Resource", "Date", "Time", "Status"]} />
-                    ) : filteredDeskReservations.length > 0 ? (
-                        <div className="card overflow-x-auto">
+                    ) : deskReservations.length > 0 ? (
+                        <div className="card">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
@@ -279,10 +198,10 @@ export default function UserReservations() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {filteredDeskReservations.map((reservation) => (
+                                {deskReservations.map((reservation, index) => (
                                     <tr
-                                        key={reservation.id}
-                                        className="border-b border-accent last:border-0"
+                                        key={index}
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">{reservation.resource}</td>
                                         <td className="py-3 text-neutral">{reservation.date}</td>
@@ -304,10 +223,12 @@ export default function UserReservations() {
                     )}
                 </section>
 
-                {/* Parking Reservations Section */}
+                {/* Parking Spots Section */}
                 <section className="mb-8">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold text-primary">Parking Spots</h2>
+                        <h2 className="text-xl font-semibold text-primary">
+                            Parking Spots
+                        </h2>
                         <button
                             onClick={() => {
                                 setActiveFormType("PARKING");
@@ -318,23 +239,10 @@ export default function UserReservations() {
                             Create New Parking Reservation
                         </button>
                     </div>
-                    <Filters
-                        filterText={parkingFilter}
-                        setFilterText={setParkingFilter}
-                        filterOptions={null}
-                        selectedFilter={null}
-                        setSelectedFilter={null}
-                        sortField="Resource"
-                        sortDirection={parkingSortDirection}
-                        handleSort={toggleParkingSortDirection}
-                        clearFilters={clearParkingFilters}
-                        totalCount={parkingReservations.length}
-                        filteredCount={filteredParkingReservations.length}
-                    />
                     {loading ? (
                         <SkeletonTable columns={["Resource", "Date", "Time", "Status"]} />
-                    ) : filteredParkingReservations.length > 0 ? (
-                        <div className="card overflow-x-auto">
+                    ) : parkingReservations.length > 0 ? (
+                        <div className="card">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
@@ -345,10 +253,10 @@ export default function UserReservations() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {filteredParkingReservations.map((reservation) => (
+                                {parkingReservations.map((reservation, index) => (
                                     <tr
-                                        key={reservation.id}
-                                        className="border-b border-accent last:border-0"
+                                        key={index}
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">{reservation.resource}</td>
                                         <td className="py-3 text-neutral">{reservation.date}</td>
@@ -370,7 +278,7 @@ export default function UserReservations() {
                     )}
                 </section>
 
-                {/* Conference Room Reservations Section */}
+                {/* Conference Rooms Section */}
                 <section className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold text-primary">
@@ -386,23 +294,10 @@ export default function UserReservations() {
                             Create New Conference Room Reservation
                         </button>
                     </div>
-                    <Filters
-                        filterText={conferenceFilter}
-                        setFilterText={setConferenceFilter}
-                        filterOptions={null}
-                        selectedFilter={null}
-                        setSelectedFilter={null}
-                        sortField="Resource"
-                        sortDirection={conferenceSortDirection}
-                        handleSort={toggleConferenceSortDirection}
-                        clearFilters={clearConferenceFilters}
-                        totalCount={conferenceReservations.length}
-                        filteredCount={filteredConferenceReservations.length}
-                    />
                     {loading ? (
                         <SkeletonTable columns={["Resource", "Date", "Time", "Status"]} />
-                    ) : filteredConferenceReservations.length > 0 ? (
-                        <div className="card overflow-x-auto">
+                    ) : conferenceReservations.length > 0 ? (
+                        <div className="card">
                             <table className="w-full">
                                 <thead>
                                 <tr className="border-b border-accent">
@@ -413,10 +308,10 @@ export default function UserReservations() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {filteredConferenceReservations.map((reservation) => (
+                                {conferenceReservations.map((reservation, index) => (
                                     <tr
-                                        key={reservation.id}
-                                        className="border-b border-accent last:border-0"
+                                        key={index}
+                                        className="border-b border-accent last:border-0 hover:bg-[var(--body-bg)] cursor-pointer"
                                     >
                                         <td className="py-3 text-neutral">{reservation.resource}</td>
                                         <td className="py-3 text-neutral">{reservation.date}</td>
@@ -438,7 +333,7 @@ export default function UserReservations() {
                     )}
                 </section>
 
-                {/* Reservation Form Modal */}
+                {/* Load Form Modal */}
                 <ReservationForm
                     isOpen={isReservationModalOpen}
                     onClose={() => {
