@@ -15,7 +15,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 export default function Home() {
     return (
-        <div className="flex flex-col justify-center bg-light">
+        <div className="flex flex-col justify-center">
             {/* Hero Section */}
             <header className="text-center py-16 px-4">
                 <h1 className="text-4xl sm:text-6xl font-bold text-primary mb-6">
