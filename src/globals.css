@@ -158,6 +158,10 @@ body {
     background-color: var(--primary);
 }
 
+.bg-light {
+    background-color: var(--light);
+}
+
 .bg-secondary {
     background-color: var(--secondary);
 }

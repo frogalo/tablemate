@@ -6,11 +6,12 @@ import {
     faPlus,
     faTimes,
     faEdit,
-    faTrash,
+    faTrash, faUndo,
 } from "@fortawesome/free-solid-svg-icons";
 import { ClipLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import UserForm from "@/components/forms/UserForm";
+import Filters from "@/components/Filters";
 
 export default function AdminUsers() {
     const [users, setUsers] = useState([]);
@@ -20,10 +21,19 @@ export default function AdminUsers() {
     const [editingUser, setEditingUser] = useState(null);
     const [filterText, setFilterText] = useState("");
     const [filterRole, setFilterRole] = useState("ALL");
+    const [sortField, setSortField] = useState("name");
+    const [sortDirection, setSortDirection] = useState("asc");
     const [deleteConfirm, setDeleteConfirm] = useState({
         show: false,
         user: null,
     });
+
+    // Role filter options
+    const roleFilterOptions = [
+        { value: "ALL", label: "All Roles" },
+        { value: "USER", label: "User" },
+        { value: "ADMIN", label: "Admin" },
+    ];
 
     useEffect(() => {
         async function fetchUsers() {
@@ -45,24 +55,59 @@ export default function AdminUsers() {
 
     // Helper to apply different colors based on role.
     const getRoleBadgeClasses = (role) => {
-        if (role === "ADMIN") {
-            return "bg-blue-100 text-blue-800 px-2 py-1 rounded";
+        switch (role) {
+            case "ADMIN":
+                return "bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold";
+            case "USER":
+                return "bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold";
+            default:
+                return "bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold";
         }
-        // Assuming regular users have a different color:
-        return "bg-green-100 text-green-800 px-2 py-1 rounded";
     };
 
-    // Filter users by role and search string (first or last name)
+    // Filter and sort users
     useEffect(() => {
-        const filtered = users.filter((user) => {
-            const fullName = (user.firstName + " " + user.lastName).toLowerCase();
+        let filtered = users.filter((user) => {
+            const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
             const searchText = filterText.toLowerCase();
             const roleMatch = filterRole === "ALL" || user.role === filterRole;
             const textMatch = fullName.includes(searchText);
             return roleMatch && textMatch;
         });
+
+        // Sort the filtered users
+        filtered = [...filtered].sort((a, b) => {
+            let fieldA, fieldB;
+
+            // Handle name fields specially
+            if (sortField === "name") {
+                fieldA = `${a.firstName} ${a.lastName}`;
+                fieldB = `${b.firstName} ${b.lastName}`;
+            } else {
+                fieldA = a[sortField];
+                fieldB = b[sortField];
+            }
+
+            if (typeof fieldA === "string") {
+                fieldA = fieldA.toLowerCase();
+                fieldB = fieldB.toLowerCase();
+            }
+
+            if (fieldA < fieldB) return sortDirection === "asc" ? -1 : 1;
+            if (fieldA > fieldB) return sortDirection === "asc" ? 1 : -1;
+            return 0;
+        });
+
         setFilteredUsers(filtered);
-    }, [users, filterText, filterRole]);
+    }, [users, filterText, filterRole, sortField, sortDirection]);
+
+    const toggleSortDirection = () => {
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    };
+
+    const handleSort = () => {
+        toggleSortDirection();
+    };
 
     // Open modal in "add" mode
     const handleOpenAddModal = () => {
@@ -119,6 +164,12 @@ export default function AdminUsers() {
         }
     };
 
+    const clearFilters = () => {
+        setFilterText("");
+        setFilterRole("ALL");
+        setSortDirection("asc");
+    };
+
     return (
         <ProtectedRoute>
             <div className="p-8 main-container space-y-6">
@@ -126,7 +177,7 @@ export default function AdminUsers() {
                     <h1 className="text-3xl font-bold text-primary">Admin Users</h1>
                     <button
                         onClick={handleOpenAddModal}
-                        className="btn-primary transition-all px-6 py-3 text-lg cursor-pointer"
+                        className="btn-primary transition-all px-6 py-3 text-lg cursor-pointer flex items-center"
                     >
                         <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         Add User
@@ -136,74 +187,79 @@ export default function AdminUsers() {
                     Manage user accounts, roles, and permissions from this page.
                 </p>
 
-                {/* Filtering Options */}
-                <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center space-x-2">
-                        <label className="text-secondary">Filter by Role:</label>
-                        <select
-                            value={filterRole}
-                            onChange={(e) => setFilterRole(e.target.value)}
-                            className="bg-light text-primary border border-neutral rounded-md p-2"
-                        >
-                            <option value="ALL">All</option>
-                            <option value="USER">User</option>
-                            <option value="ADMIN">Admin</option>
-                        </select>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <label className="text-secondary">Search Name:</label>
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            value={filterText}
-                            onChange={(e) => setFilterText(e.target.value)}
-                            className="bg-light text-primary border border-neutral rounded-md p-2"
-                        />
-                    </div>
-                </div>
+                {/* Filters Component */}
+                <Filters
+                    filterText={filterText}
+                    setFilterText={setFilterText}
+                    filterOptions={roleFilterOptions}
+                    selectedFilter={filterRole}
+                    setSelectedFilter={setFilterRole}
+                    sortField="Name"
+                    sortDirection={sortDirection}
+                    handleSort={handleSort}
+                    clearFilters={clearFilters}
+                    totalCount={users.length}
+                    filteredCount={filteredUsers.length}
+                />
 
-                {/* User List Section */}
+                {/* Loading Spinner */}
                 {loading ? (
                     <div className="flex justify-center items-center py-12">
-                        <ClipLoader size={50} color={"#123abc"} />
+                        <ClipLoader size={50} color={"var(--primary)"} />
                     </div>
                 ) : filteredUsers.length > 0 ? (
-                    <ul className="space-y-2">
-                        {filteredUsers.map((user) => (
-                            <li
-                                key={user.id}
-                                className="card p-4 flex justify-between items-center"
-                            >
-                                <div>
-                  <span className="font-medium">
-                    {user.firstName} {user.lastName}
-                  </span>{" "}
-                                    &mdash;{" "}
-                                    <span className={getRoleBadgeClasses(user.role)}>
-                    {user.role}
-                  </span>
-                                </div>
-                                <div className="flex space-x-4">
-                                    <button
-                                        onClick={() => handleEditUser(user)}
-                                        className="cursor-pointer text-blue-500 hover:text-blue-600 px-2 py-2 text-xl"
-                                        type="button"
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleRemoveUserClick(user)}
-                                        className="cursor-pointer text-red-500 hover:text-red-600 px-2 py-2 text-xl"
-                                        type="button"
-                                    >
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="bg-card-bg rounded-lg overflow-hidden shadow-sm border border-neutral/20">
+                        <ul className="divide-y divide-neutral/10">
+                            {filteredUsers.map((user) => (
+                                <li
+                                    key={user.id}
+                                    className="p-4 hover:bg-third/50 transition-colors flex justify-between items-center"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
+                                            {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div className="font-medium text-primary">
+                                                {user.firstName} {user.lastName}
+                                            </div>
+                                            <div className="text-sm text-neutral">{user.email}</div>
+                                        </div>
+                                        <span className={getRoleBadgeClasses(user.role)}>
+                      {user.role}
+                    </span>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => handleEditUser(user)}
+                                            className="cursor-pointer text-primary hover:text-primary/80 p-2 rounded-full hover:bg-primary/10 transition-colors"
+                                            type="button"
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleRemoveUserClick(user)}
+                                            className="cursor-pointer text-accent hover:text-accent/80 p-2 rounded-full hover:bg-accent/10 transition-colors"
+                                            type="button"
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 ) : (
-                    <p>No users found.</p>
+                    <div className="text-center py-12 bg-card-bg rounded-lg border border-neutral/20">
+                        <p className="text-neutral text-lg">No users found matching your filters.</p>
+                        <button
+                            onClick={clearFilters}
+                            className="mt-4 text-primary hover:underline flex items-center justify-center mx-auto"
+                        >
+                            <FontAwesomeIcon icon={faUndo} className="mr-2" />
+                            Clear all filters
+                        </button>
+                    </div>
                 )}
 
                 {/* Main Modal for Add/Edit Form */}
@@ -215,11 +271,11 @@ export default function AdminUsers() {
                             onClick={handleCloseModal}
                         ></div>
                         {/* Modal box */}
-                        <div className="relative bg-light rounded p-6 mx-4 max-w-md w-full card">
+                        <div className="relative bg-card-bg rounded-lg p-6 mx-4 max-w-md w-full card">
                             <button
                                 type="button"
                                 onClick={handleCloseModal}
-                                className="absolute top-2 right-2 text-neutral hover:text-secondary cursor-pointer"
+                                className="absolute top-2 right-2 text-neutral hover:text-secondary cursor-pointer p-2 rounded-full hover:bg-neutral/10"
                             >
                                 <FontAwesomeIcon icon={faTimes} />
                             </button>
@@ -245,32 +301,32 @@ export default function AdminUsers() {
                             onClick={handleCancelDelete}
                         ></div>
                         {/* Modal box */}
-                        <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
+                        <div className="relative bg-card-bg rounded-lg p-6 mx-4 max-w-sm w-full card">
                             <h3 className="text-xl font-bold text-primary mb-4">
                                 Confirm Delete
                             </h3>
                             <p className="mb-6">
                                 Are you sure you want to delete{" "}
                                 <span className="font-medium">
-                  {deleteConfirm.user.firstName}{" "}
-                                    {deleteConfirm.user.lastName}
+                  {deleteConfirm.user?.firstName}{" "}
+                                    {deleteConfirm.user?.lastName}
                 </span>
                                 ?
                             </p>
                             <div className="flex justify-end space-x-4">
                                 <button
                                     onClick={handleCancelDelete}
-                                    className="cursor-pointer px-6 py-3 text-lg bg-gray-300 rounded hover:bg-gray-400"
+                                    className="cursor-pointer px-4 py-2 text-sm bg-third rounded-md hover:bg-third/70 transition-colors"
                                     type="button"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleConfirmDelete}
-                                    className="cursor-pointer px-10 py-4 text-xl text-red-500 hover:text-red-600"
+                                    className="cursor-pointer px-4 py-2 text-sm bg-accent text-white rounded-md hover:bg-accent/80 transition-colors flex items-center"
                                     type="button"
                                 >
-                                    <FontAwesomeIcon icon={faTrash} /> Delete
+                                    <FontAwesomeIcon icon={faTrash} className="mr-2" /> Delete
                                 </button>
                             </div>
                         </div>

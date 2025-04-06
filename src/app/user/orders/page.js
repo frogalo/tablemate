@@ -1,38 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ClipLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import OrderFoodForm from "@/components/forms/OrderFoodForm";
 import ITEquipmentForm from "@/components/forms/ITEquipmentForm";
 import SkeletonTable from "@/components/ui/SkeletonTable";
+import Filters from "@/components/Filters";
 
-// Implement color from different status
+// Helper: Return a CSS class based on order status.
 function getStatusClass(status) {
     const s = status.toLowerCase();
     if (s === "delivered") return "bg-green-100 text-green-800";
     if (s === "processing") return "bg-yellow-100 text-yellow-800";
     if (s === "shipped") return "bg-blue-100 text-blue-800";
-    return "bg-red-100 text-red-800"; // default
+    return "bg-red-100 text-red-800"; // default fallback
 }
 
 export default function UserOrders() {
-    // List being set to display.
-    const [itOrders, setItOrders] = useState([]);
+    // Order data state (mocked)
     const [foodOrders, setFoodOrders] = useState([]);
+    const [itOrders, setItOrders] = useState([]);
     const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
     const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
 
-    // Simulate data loading for orders (2 seconds)
+    // Simulate data loading delay.
     const [ordersLoading, setOrdersLoading] = useState(true);
     useEffect(() => {
-        // Mimic API delay
+        // Mimic API delay.
         const timer = setTimeout(() => {
             setOrdersLoading(false);
         }, 1000);
         return () => clearTimeout(timer);
     }, []);
 
-    // Load mock data for orders
+    // Load mock data for orders.
     useEffect(() => {
         async function loadMockData() {
             const mockupFoodOrders = [
@@ -86,11 +88,66 @@ export default function UserOrders() {
             setFoodOrders(mockupFoodOrders);
             setItOrders(mockupITOrders);
         }
-
         loadMockData();
     }, []);
 
-    // Handlers for opening modals
+    // --- Filtering: Food Orders ---
+    const [foodFilterText, setFoodFilterText] = useState("");
+    const [foodStatusFilter, setFoodStatusFilter] = useState("ALL");
+    const [foodSortDirection, setFoodSortDirection] = useState("asc");
+
+    const filteredFoodOrders = foodOrders
+            .filter((order) => {
+                const search = foodFilterText.toLowerCase();
+                const matchesText =
+                    order.restaurant.toLowerCase().includes(search) ||
+                    order.menuItem.toLowerCase().includes(search);
+                const statusMatch =
+                    foodStatusFilter === "ALL" ||
+                    order.status.toLowerCase() === foodStatusFilter.toLowerCase();
+                return matchesText && statusMatch;
+            })
+        // You can also add additional sort logic here if needed.
+    ;
+
+    const toggleFoodSortDirection = () => {
+        setFoodSortDirection(foodSortDirection === "asc" ? "desc" : "asc");
+    };
+
+    const clearFoodFilters = () => {
+        setFoodFilterText("");
+        setFoodStatusFilter("ALL");
+        setFoodSortDirection("asc");
+    };
+
+    // --- Filtering: IT Equipment Orders ---
+    const [itFilterText, setItFilterText] = useState("");
+    const [itStatusFilter, setItStatusFilter] = useState("ALL");
+    const [itSortDirection, setItSortDirection] = useState("asc");
+
+    const filteredItOrders = itOrders
+            .filter((order) => {
+                const search = itFilterText.toLowerCase();
+                const matchesText = order.equipmentType.toLowerCase().includes(search);
+                const statusMatch =
+                    itStatusFilter === "ALL" ||
+                    order.status.toLowerCase() === itStatusFilter.toLowerCase();
+                return matchesText && statusMatch;
+            })
+        // You can also add additional sort logic here if needed.
+    ;
+
+    const toggleItSortDirection = () => {
+        setItSortDirection(itSortDirection === "asc" ? "desc" : "asc");
+    };
+
+    const clearItFilters = () => {
+        setItFilterText("");
+        setItStatusFilter("ALL");
+        setItSortDirection("asc");
+    };
+
+    // Handlers for opening modals.
     const handleAddFoodOrder = () => {
         setIsFoodModalOpen(true);
     };
@@ -113,7 +170,7 @@ export default function UserOrders() {
                     </p>
                 </div>
 
-                {/* Food Orders Section */}
+                {/* Food Orders Section with Filters */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-primary">Food Orders</h2>
@@ -124,6 +181,24 @@ export default function UserOrders() {
                             Create New Food Order
                         </button>
                     </div>
+                    <Filters
+                        filterText={foodFilterText}
+                        setFilterText={setFoodFilterText}
+                        filterOptions={[
+                            { value: "ALL", label: "All Statuses" },
+                            { value: "processing", label: "Processing" },
+                            { value: "shipped", label: "Shipped" },
+                            { value: "delivered", label: "Delivered" },
+                        ]}
+                        selectedFilter={foodStatusFilter}
+                        setSelectedFilter={setFoodStatusFilter}
+                        sortField="Order ID"
+                        sortDirection={foodSortDirection}
+                        handleSort={toggleFoodSortDirection}
+                        clearFilters={clearFoodFilters}
+                        totalCount={foodOrders.length}
+                        filteredCount={filteredFoodOrders.length}
+                    />
                     {ordersLoading ? (
                         <SkeletonTable
                             columns={[
@@ -136,7 +211,7 @@ export default function UserOrders() {
                                 "Actions",
                             ]}
                         />
-                    ) : foodOrders.length > 0 ? (
+                    ) : filteredFoodOrders.length > 0 ? (
                         <div className="card">
                             <table className="w-full">
                                 <thead>
@@ -153,7 +228,7 @@ export default function UserOrders() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {foodOrders.map((order) => (
+                                {filteredFoodOrders.map((order) => (
                                     <tr
                                         key={order.id}
                                         className="border-b border-accent last:border-0"
@@ -163,7 +238,9 @@ export default function UserOrders() {
                                             {order.restaurant} - {order.menuItem}
                                         </td>
                                         <td className="py-3 text-neutral">{order.userId}</td>
-                                        <td className="py-3 text-neutral">${order.price}</td>
+                                        <td className="py-3 text-neutral">
+                                            ${order.price.toFixed(2)}
+                                        </td>
                                         <td className="py-3 text-neutral">{order.orderDate}</td>
                                         <td className="py-3 text-center">
                         <span
@@ -192,11 +269,11 @@ export default function UserOrders() {
                             </table>
                         </div>
                     ) : (
-                        <p className="text-neutral">No food orders yet.</p>
+                        <p className="text-neutral">No food orders found.</p>
                     )}
                 </section>
 
-                {/* IT Equipment Orders Section */}
+                {/* IT Equipment Orders Section with Filters */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-semibold text-primary">
@@ -209,6 +286,24 @@ export default function UserOrders() {
                             Create New IT Equipment Order
                         </button>
                     </div>
+                    <Filters
+                        filterText={itFilterText}
+                        setFilterText={setItFilterText}
+                        filterOptions={[
+                            { value: "ALL", label: "All Statuses" },
+                            { value: "processing", label: "Processing" },
+                            { value: "shipped", label: "Shipped" },
+                            { value: "delivered", label: "Delivered" },
+                        ]}
+                        selectedFilter={itStatusFilter}
+                        setSelectedFilter={setItStatusFilter}
+                        sortField="Order ID"
+                        sortDirection={itSortDirection}
+                        handleSort={toggleItSortDirection}
+                        clearFilters={clearItFilters}
+                        totalCount={itOrders.length}
+                        filteredCount={filteredItOrders.length}
+                    />
                     {ordersLoading ? (
                         <SkeletonTable
                             columns={[
@@ -221,7 +316,7 @@ export default function UserOrders() {
                                 "Actions",
                             ]}
                         />
-                    ) : itOrders.length > 0 ? (
+                    ) : filteredItOrders.length > 0 ? (
                         <div className="card">
                             <table className="w-full">
                                 <thead>
@@ -236,15 +331,19 @@ export default function UserOrders() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {itOrders.map((order) => (
+                                {filteredItOrders.map((order) => (
                                     <tr
                                         key={order.id}
                                         className="border-b border-accent last:border-0"
                                     >
                                         <td className="py-3 text-neutral">ORD-{order.id}</td>
-                                        <td className="py-3 text-neutral">{order.equipmentType}</td>
+                                        <td className="py-3 text-neutral">
+                                            {order.equipmentType}
+                                        </td>
                                         <td className="py-3 text-neutral">{order.userId}</td>
-                                        <td className="py-3 text-neutral">${order.price}</td>
+                                        <td className="py-3 text-neutral">
+                                            ${order.price.toFixed(2)}
+                                        </td>
                                         <td className="py-3 text-neutral">{order.orderDate}</td>
                                         <td className="py-3 text-center">
                         <span
@@ -273,7 +372,7 @@ export default function UserOrders() {
                             </table>
                         </div>
                     ) : (
-                        <p className="text-neutral">No IT equipment orders yet.</p>
+                        <p className="text-neutral">No IT equipment orders found.</p>
                     )}
                 </section>
 
@@ -292,69 +391,3 @@ export default function UserOrders() {
         </ProtectedRoute>
     );
 }
-
-const recentActivities = [
-    {
-        description: "Conference room 'A' reserved",
-        time: "5 minutes ago",
-        color: "bg-primary",
-    },
-    {
-        description: "New IT equipment order submitted",
-        time: "1 hour ago",
-        color: "bg-secondary",
-    },
-    {
-        description: "Desk reservation cancelled",
-        time: "3 hours ago",
-        color: "bg-accent",
-    },
-    {
-        description: "Parking spot 'B4' reserved",
-        time: "5 hours ago",
-        color: "bg-primary",
-    },
-];
-
-const quickActions = [
-    {
-        label: "Room Reservation",
-        href: "#",
-        icon: "fa-door-open",
-    },
-    {
-        label: "Parking Spot Reservation",
-        href: "#",
-        icon: "fa-parking",
-    },
-    {
-        label: "Desk Reservation",
-        href: "#",
-        icon: "fa-chair",
-    },
-    {
-        label: "Conference Room Reservation",
-        href: "#",
-        icon: "fa-building",
-    },
-    {
-        label: "Order Food",
-        href: "#",
-        icon: "fa-utensils",
-    },
-    {
-        label: "Order IT Equipment",
-        href: "#",
-        icon: "fa-laptop",
-    },
-];
-
-const upcomingReservations = [
-    {
-        resource: "Conference Room A",
-        date: "Today",
-        time: "14:00 - 15:00",
-        status: "Confirmed",
-        statusClass: "bg-green-100 text-green-800",
-    },
-];

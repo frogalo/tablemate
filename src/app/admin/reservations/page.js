@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ResourceForm from "@/components/forms/ResourceForm";
+import Filters from "@/components/Filters";
 
 // Helper for resource type background colors.
 function getResourceTypeBg(type) {
@@ -24,6 +25,7 @@ function getResourceTypeBg(type) {
 export default function AdminResources() {
     // Local state for resources.
     const [resources, setResources] = useState([]);
+    const [filteredResources, setFilteredResources] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Modal state for resources.
@@ -34,6 +36,7 @@ export default function AdminResources() {
     // Filter states.
     const [filterName, setFilterName] = useState("");
     const [filterType, setFilterType] = useState("");
+    const [resourceSortDirection, setResourceSortDirection] = useState("asc");
 
     // Fetch resources from the API.
     useEffect(() => {
@@ -53,7 +56,26 @@ export default function AdminResources() {
         fetchResources();
     }, []);
 
-    // Handler for saving a resource (both add & edit).
+    // Recalculate filtered (and sorted) resources when filters change.
+    useEffect(() => {
+        let filtered = resources.filter((resource) =>
+            resource.name.toLowerCase().includes(filterName.toLowerCase())
+        );
+        if (filterType) {
+            filtered = filtered.filter((resource) => resource.type === filterType);
+        }
+        // Sort alphabetically by name.
+        filtered = [...filtered].sort((a, b) => {
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+            if (aName < bName) return resourceSortDirection === "asc" ? -1 : 1;
+            if (aName > bName) return resourceSortDirection === "asc" ? 1 : -1;
+            return 0;
+        });
+        setFilteredResources(filtered);
+    }, [resources, filterName, filterType, resourceSortDirection]);
+
+    // Handler for saving a resource (both for add and edit).
     const handleSaveResource = (newResource) => {
         if (resourceToEdit) {
             setResources(
@@ -82,14 +104,19 @@ export default function AdminResources() {
         }
     };
 
-    // Filter resources based on name and type.
-    const filteredResources = resources.filter((resource) => {
-        const matchesName = resource.name
-            .toLowerCase()
-            .includes(filterName.toLowerCase());
-        const matchesType = filterType ? resource.type === filterType : true;
-        return matchesName && matchesType;
-    });
+    // Toggle sort direction for resources.
+    const toggleResourceSortDirection = () => {
+        setResourceSortDirection(
+            resourceSortDirection === "asc" ? "desc" : "asc"
+        );
+    };
+
+    // Clear filters for resources.
+    const clearResourceFilters = () => {
+        setFilterName("");
+        setFilterType("");
+        setResourceSortDirection("asc");
+    };
 
     return (
         <ProtectedRoute>
@@ -105,30 +132,26 @@ export default function AdminResources() {
                     </p>
                 </div>
 
-                {/* Filters */}
-                <section className="space-y-4">
-                    <h2 className="text-xl font-semibold text-primary">Filters</h2>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <input
-                            type="text"
-                            placeholder="Search by name..."
-                            value={filterName}
-                            onChange={(e) => setFilterName(e.target.value)}
-                            className="border border-neutral rounded p-2 w-full sm:w-1/2"
-                        />
-                        <select
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                            className="border border-neutral rounded p-2 w-full sm:w-1/2"
-                        >
-                            <option value="">All Types</option>
-                            <option value="PARKING">Parking Spot</option>
-                            <option value="DESK">Desk Spot</option>
-                            <option value="ROOM">Room</option>
-                            <option value="CONFERENCE_ROOM">Conference Room</option>
-                        </select>
-                    </div>
-                </section>
+                {/* Filters using the reusable Filters component */}
+                <Filters
+                    filterText={filterName}
+                    setFilterText={setFilterName}
+                    filterOptions={[
+                        { value: "", label: "All Types" },
+                        { value: "PARKING", label: "Parking Spot" },
+                        { value: "DESK", label: "Desk Spot" },
+                        { value: "ROOM", label: "Room" },
+                        { value: "CONFERENCE_ROOM", label: "Conference Room" },
+                    ]}
+                    selectedFilter={filterType}
+                    setSelectedFilter={setFilterType}
+                    sortField="Name"
+                    sortDirection={resourceSortDirection}
+                    handleSort={toggleResourceSortDirection}
+                    clearFilters={clearResourceFilters}
+                    totalCount={resources.length}
+                    filteredCount={filteredResources.length}
+                />
 
                 {/* Resources Section */}
                 <section>
@@ -158,16 +181,16 @@ export default function AdminResources() {
                                     <th className="w-1/5 px-4 py-2 text-left text-neutral hidden md:table-cell">
                                         ID
                                     </th>
-                                    <th className="w-1/5 px-4 py-2 text-left text-neutral">
+                                    <th className="w-1/5 px-4 py-2 text-left">
                                         Type
                                     </th>
-                                    <th className="w-1/5 px-4 py-2 text-left text-neutral">
+                                    <th className="w-1/5 px-4 py-2 text-left">
                                         Name
                                     </th>
-                                    <th className="w-1/5 px-4 py-2 text-left text-neutral">
+                                    <th className="w-1/5 px-4 py-2 text-left">
                                         Identifier
                                     </th>
-                                    <th className="w-1/5 px-4 py-2 text-left text-neutral hidden sm:table-cell">
+                                    <th className="w-1/5 px-4 py-2 text-left hidden sm:table-cell">
                                         Actions
                                     </th>
                                 </tr>

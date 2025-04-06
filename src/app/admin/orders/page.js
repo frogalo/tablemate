@@ -5,6 +5,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import RestaurantForm from "@/components/forms/RestaurantForm";
 import AccessoryForm from "@/components/forms/AccessoryForm";
 import SkeletonTable from "@/components/ui/SkeletonTable";
+import Filters from "@/components/Filters";
 
 // Returns a background/text color class based on status
 function getStatusBg(status) {
@@ -16,53 +17,64 @@ function getStatusBg(status) {
 }
 
 export default function AdminOrders() {
-    // Mockup data for IT Orders
+    // --- MOCK/INITIAL DATA ---
     const initialItOrders = [
         {
             id: "1001",
             user: "john.doe@example.com",
-            item: "Laptop ",
+            item: "Laptop",
             status: "Processing",
         },
         {
             id: "1002",
             user: "jane.smith@example.com",
-            item: "Monitor ",
+            item: "Monitor",
             status: "Shipped",
         },
         {
             id: "1003",
             user: "david.lee@example.com",
-            item: "Keyboard ",
+            item: "Keyboard",
             status: "Delivered",
         },
     ];
 
-    // Local states (using as placeholders until replaced by actual API data)
+    // --- Local States ---
     const [itOrders, setItOrders] = useState(initialItOrders);
+    const [filteredOrders, setFilteredOrders] = useState(initialItOrders);
     const [accessories, setAccessories] = useState([]);
+    const [filteredAccessories, setFilteredAccessories] = useState([]);
     const [restaurants, setRestaurants] = useState([]);
+    const [filteredRestaurants, setFilteredRestaurants] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
     const [loadingAccessories, setLoadingAccessories] = useState(true);
     const [loadingRestaurants, setLoadingRestaurants] = useState(true);
 
-    // Modal state
+    // --- Filter States for Orders ---
+    const [orderFilterText, setOrderFilterText] = useState("");
+    const [orderStatusFilter, setOrderStatusFilter] = useState("ALL");
+    const [orderSortDirection, setOrderSortDirection] = useState("asc");
+
+    // --- Filter States for Accessories ---
+    const [accessoryFilterText, setAccessoryFilterText] = useState("");
+    const [accessorySortDirection, setAccessorySortDirection] = useState("asc");
+
+    // --- Filter States for Restaurants ---
+    const [restaurantFilterText, setRestaurantFilterText] = useState("");
+    const [restaurantSortDirection, setRestaurantSortDirection] = useState("asc");
+
+    // --- Modal & Edit/Delete States ---
     const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
     const [isAccessoryModalOpen, setIsAccessoryModalOpen] = useState(false);
-
-    // For restaurant edit/delete actions.
     const [restaurantToEdit, setRestaurantToEdit] = useState(null);
     const [restaurantToDelete, setRestaurantToDelete] = useState(null);
-
-    // For accessory edit/delete actions.
     const [accessoryToEdit, setAccessoryToEdit] = useState(null);
     const [accessoryToDelete, setAccessoryToDelete] = useState(null);
 
-    // Fetch data from API GET endpoints on component mount.
+    // --- Fetch Data from API on Component Mount ---
     useEffect(() => {
         async function fetchData() {
             try {
-                // Fetch all data concurrently.
                 const [ordersRes, accessoriesRes, restaurantsRes] = await Promise.all([
                     fetch("/api/orders"),
                     fetch("/api/accessories"),
@@ -92,14 +104,106 @@ export default function AdminOrders() {
         fetchData();
     }, []);
 
+    // --- Filter & Sort Orders ---
+    useEffect(() => {
+        let filtered = itOrders.filter((order) => {
+            const searchText = orderFilterText.toLowerCase();
+            const idMatch = order.id.toLowerCase().includes(searchText);
+            const userMatch = order.user.toLowerCase().includes(searchText);
+            const itemMatch = order.item.toLowerCase().includes(searchText);
+            const statusMatch =
+                orderStatusFilter === "ALL" ||
+                order.status.toLowerCase() === orderStatusFilter.toLowerCase();
+            return (idMatch || userMatch || itemMatch) && statusMatch;
+        });
+
+        filtered = [...filtered].sort((a, b) => {
+            let fieldA = a.id.toLowerCase();
+            let fieldB = b.id.toLowerCase();
+            if (fieldA < fieldB) return orderSortDirection === "asc" ? -1 : 1;
+            if (fieldA > fieldB) return orderSortDirection === "asc" ? 1 : -1;
+            return 0;
+        });
+
+        setFilteredOrders(filtered);
+    }, [itOrders, orderFilterText, orderStatusFilter, orderSortDirection]);
+
+    const toggleOrderSortDirection = () => {
+        setOrderSortDirection(
+            orderSortDirection === "asc" ? "desc" : "asc"
+        );
+    };
+
+    const clearOrderFilters = () => {
+        setOrderFilterText("");
+        setOrderStatusFilter("ALL");
+        setOrderSortDirection("asc");
+    };
+
+    // --- Filter & Sort Accessories ---
+    useEffect(() => {
+        let filtered = accessories.filter((acc) =>
+            acc.name.toLowerCase().includes(accessoryFilterText.toLowerCase())
+        );
+
+        filtered = [...filtered].sort((a, b) => {
+            let fieldA = a.name.toLowerCase();
+            let fieldB = b.name.toLowerCase();
+            if (fieldA < fieldB) return accessorySortDirection === "asc" ? -1 : 1;
+            if (fieldA > fieldB) return accessorySortDirection === "asc" ? 1 : -1;
+            return 0;
+        });
+
+        setFilteredAccessories(filtered);
+    }, [accessories, accessoryFilterText, accessorySortDirection]);
+
+    const toggleAccessorySortDirection = () => {
+        setAccessorySortDirection(
+            accessorySortDirection === "asc" ? "desc" : "asc"
+        );
+    };
+
+    const clearAccessoryFilters = () => {
+        setAccessoryFilterText("");
+        setAccessorySortDirection("asc");
+    };
+
+    // --- Filter & Sort Restaurants ---
+    useEffect(() => {
+        let filtered = restaurants.filter((r) =>
+            r.name.toLowerCase().includes(restaurantFilterText.toLowerCase()) ||
+            r.email.toLowerCase().includes(restaurantFilterText.toLowerCase())
+        );
+
+        filtered = [...filtered].sort((a, b) => {
+            let fieldA = a.name.toLowerCase();
+            let fieldB = b.name.toLowerCase();
+            if (fieldA < fieldB) return restaurantSortDirection === "asc" ? -1 : 1;
+            if (fieldA > fieldB) return restaurantSortDirection === "asc" ? 1 : -1;
+            return 0;
+        });
+
+        setFilteredRestaurants(filtered);
+    }, [restaurants, restaurantFilterText, restaurantSortDirection]);
+
+    const toggleRestaurantSortDirection = () => {
+        setRestaurantSortDirection(
+            restaurantSortDirection === "asc" ? "desc" : "asc"
+        );
+    };
+
+    const clearRestaurantFilters = () => {
+        setRestaurantFilterText("");
+        setRestaurantSortDirection("asc");
+    };
+
+    // --- Handlers for Add/Edit/Remove ---
     const handleAddCompany = (newRestaurant) => {
-        // For creating a new restaurant.
         setRestaurants([...restaurants, { ...newRestaurant, orderCount: 0 }]);
         setIsCompanyModalOpen(false);
     };
 
     const handleAddAccessory = (newAccessory) => {
-        // For creating a new accessory.
         if (accessoryToEdit) {
             setAccessories(
                 accessories.map((acc) =>
@@ -113,7 +217,6 @@ export default function AdminOrders() {
         setIsAccessoryModalOpen(false);
     };
 
-    // Edit and Remove handlers for restaurants and accessories.
     const handleEditItem = (item, type) => {
         if (type === "restaurant") {
             setRestaurantToEdit(item);
@@ -126,10 +229,8 @@ export default function AdminOrders() {
         }
     };
 
-    // Remove handler that calls the API.
     const handleRemoveItem = async (item, type) => {
         try {
-            // Generate the API URL based on item type.
             let apiUrl = "";
             if (type === "restaurant") {
                 apiUrl = `/api/restaurants/${item.id}`;
@@ -141,32 +242,129 @@ export default function AdminOrders() {
                 console.log("Unknown type:", type);
                 return;
             }
-
-            const res = await fetch(apiUrl, {
-                method: "DELETE",
-            });
-
+            const res = await fetch(apiUrl, { method: "DELETE" });
             if (!res.ok) {
                 console.error(`Failed to remove ${type}`);
                 return;
             }
-
-            // Update local state if deletion was successful.
             if (type === "restaurant") {
-                setRestaurants(
-                    restaurants.filter((restaurant) => restaurant.id !== item.id)
-                );
+                setRestaurants(restaurants.filter((r) => r.id !== item.id));
             } else if (type === "accessory") {
-                setAccessories(
-                    accessories.filter((accessory) => accessory.id !== item.id)
-                );
+                setAccessories(accessories.filter((a) => a.id !== item.id));
             } else if (type === "order") {
-                setItOrders(itOrders.filter((order) => order.id !== item.id));
+                setItOrders(itOrders.filter((o) => o.id !== item.id));
             }
         } catch (error) {
             console.error("Error removing", type, error);
         }
     };
+
+    // --- Render Row Functions ---
+    const renderOrderRow = (order) => (
+        <tr key={order.id} className="border-b border-accent last:border-0">
+            <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
+                {order.id}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {order.user}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {order.item}
+            </td>
+            <td
+                className={`w-1/5 px-4 py-2 text-center ${getStatusBg(
+                    order.status
+                )} whitespace-normal`}
+            >
+                {order.status}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                <button
+                    type="button"
+                    onClick={() => handleEditItem(order, "order")}
+                    className="mx-1 text-blue-500 hover:text-blue-700"
+                >
+                    <i className="fa fa-pencil"></i>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleRemoveItem(order, "order")}
+                    className="mx-1 text-red-500 hover:text-red-700"
+                >
+                    <i className="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    );
+
+    const renderAccessoryRow = (accessory) => (
+        <tr key={accessory.id} className="border-b border-accent last:border-0">
+            <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
+                {accessory.id}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {accessory.name}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {accessory.quantity}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {accessory.allocated || 0}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                <button
+                    type="button"
+                    onClick={() => handleEditItem(accessory, "accessory")}
+                    className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
+                >
+                    <i className="fa fa-pencil"></i>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setAccessoryToDelete(accessory)}
+                    className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
+                >
+                    <i className="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    );
+
+    const renderRestaurantRow = (restaurant) => (
+        <tr key={restaurant.id} className="border-b border-accent last:border-0">
+            <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
+                {restaurant.id}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {restaurant.name}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {restaurant.email}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
+                {restaurant.orderCount}
+            </td>
+            <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
+                <button
+                    type="button"
+                    onClick={() => {
+                        setRestaurantToEdit(restaurant);
+                        setIsCompanyModalOpen(true);
+                    }}
+                    className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
+                >
+                    <i className="fa fa-pencil"></i>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setRestaurantToDelete(restaurant)}
+                    className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
+                >
+                    <i className="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    );
 
     return (
         <ProtectedRoute>
@@ -176,9 +374,9 @@ export default function AdminOrders() {
                         Admin Orders &amp; Inventory
                     </h1>
                     <p className="text-neutral">
-                        Manage IT accessories orders, monitor IT accessories inventory (with
-                        allocation details), and add new food delivery companies. Use this panel
-                        to keep track of orders, storage items, and their allocation to users.
+                        Manage IT accessories orders, monitor IT accessories inventory (with allocation
+                        details), and add new food delivery companies. Use this panel to keep track of orders,
+                        storage items, and their allocation to users.
                     </p>
                 </div>
 
@@ -187,11 +385,27 @@ export default function AdminOrders() {
                     <h2 className="text-2xl font-semibold text-primary mb-4">
                         IT Accessories Orders
                     </h2>
+                    <Filters
+                        filterText={orderFilterText}
+                        setFilterText={setOrderFilterText}
+                        filterOptions={[
+                            { value: "ALL", label: "All Statuses" },
+                            { value: "processing", label: "Processing" },
+                            { value: "shipped", label: "Shipped" },
+                            { value: "delivered", label: "Delivered" },
+                        ]}
+                        selectedFilter={orderStatusFilter}
+                        setSelectedFilter={setOrderStatusFilter}
+                        sortField="ID"
+                        sortDirection={orderSortDirection}
+                        handleSort={toggleOrderSortDirection}
+                        clearFilters={clearOrderFilters}
+                        totalCount={itOrders.length}
+                        filteredCount={filteredOrders.length}
+                    />
                     {loadingOrders ? (
-                        <SkeletonTable
-                            columns={["ID", "User", "Item", "Status", "Actions"]}
-                        />
-                    ) : itOrders.length > 0 ? (
+                        <SkeletonTable columns={["ID", "User", "Item", "Status", "Actions"]} />
+                    ) : filteredOrders.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -213,60 +427,18 @@ export default function AdminOrders() {
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                {itOrders.map((order) => (
-                                    <tr
-                                        key={order.id}
-                                        className="border-b border-accent last:border-0"
-                                    >
-                                        <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
-                                            {order.id}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {order.user}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {order.item}
-                                        </td>
-                                        <td
-                                            className={`w-1/5 px-4 py-2 text-center ${getStatusBg(
-                                                order.status
-                                            )} whitespace-normal`}
-                                        >
-                                            {order.status}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleEditItem(order, "order")}
-                                                className="mx-1 text-blue-500 hover:text-blue-700"
-                                            >
-                                                <i className="fa fa-pencil"></i>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveItem(order, "order")}
-                                                className="mx-1 text-red-500 hover:text-red-700"
-                                            >
-                                                <i className="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
+                                <tbody>{filteredOrders.map(renderOrderRow)}</tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-neutral">No orders yet.</p>
+                        <p className="text-neutral">No orders found.</p>
                     )}
                 </section>
 
                 {/* IT Accessories Inventory Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-semibold text-primary">
-                            IT Accessories Inventory
-                        </h2>
+                        <h2 className="text-2xl font-semibold text-primary">IT Accessories Inventory</h2>
                         <button
                             onClick={() => {
                                 setAccessoryToEdit(null);
@@ -277,11 +449,25 @@ export default function AdminOrders() {
                             Add New IT Accessory
                         </button>
                     </div>
+                    <Filters
+                        filterText={accessoryFilterText}
+                        setFilterText={setAccessoryFilterText}
+                        // No dropdown filter for accessories in this example:
+                        filterOptions={null}
+                        selectedFilter={null}
+                        setSelectedFilter={null}
+                        sortField="Name"
+                        sortDirection={accessorySortDirection}
+                        handleSort={toggleAccessorySortDirection}
+                        clearFilters={clearAccessoryFilters}
+                        totalCount={accessories.length}
+                        filteredCount={filteredAccessories.length}
+                    />
                     {loadingAccessories ? (
                         <SkeletonTable
                             columns={["ID", "Accessory Name", "In Storage", "With Users", "Actions"]}
                         />
-                    ) : accessories.length > 0 ? (
+                    ) : filteredAccessories.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -303,60 +489,18 @@ export default function AdminOrders() {
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                {accessories.map((accessory) => (
-                                    <tr
-                                        key={accessory.id}
-                                        className="border-b border-accent last:border-0"
-                                    >
-                                        <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
-                                            {accessory.id}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {accessory.name}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {accessory.quantity}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {accessory.allocated || 0}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleEditItem(accessory, "accessory")
-                                                }
-                                                className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
-                                            >
-                                                <i className="fa fa-pencil"></i>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setAccessoryToDelete(accessory)}
-                                                className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
-                                            >
-                                                <i className="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
+                                <tbody>{filteredAccessories.map(renderAccessoryRow)}</tbody>
                             </table>
                         </div>
                     ) : (
-                        <p className="text-neutral">
-                            No IT accessories in inventory yet.
-                        </p>
+                        <p className="text-neutral">No IT accessories in inventory yet.</p>
                     )}
                 </section>
 
                 {/* Restaurants Section */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-semibold text-primary">
-                            Restaurants
-                        </h2>
+                        <h2 className="text-2xl font-semibold text-primary">Restaurants</h2>
                         <button
                             onClick={() => {
                                 setRestaurantToEdit(null);
@@ -367,11 +511,23 @@ export default function AdminOrders() {
                             Add New Restaurant
                         </button>
                     </div>
+                    <Filters
+                        filterText={restaurantFilterText}
+                        setFilterText={setRestaurantFilterText}
+                        // No dropdown filter for restaurants in this example
+                        filterOptions={null}
+                        selectedFilter={null}
+                        setSelectedFilter={null}
+                        sortField="Name"
+                        sortDirection={restaurantSortDirection}
+                        handleSort={toggleRestaurantSortDirection}
+                        clearFilters={clearRestaurantFilters}
+                        totalCount={restaurants.length}
+                        filteredCount={filteredRestaurants.length}
+                    />
                     {loadingRestaurants ? (
-                        <SkeletonTable
-                            columns={["ID", "Name", "Email", "Orders", "Actions"]}
-                        />
-                    ) : restaurants.length > 0 ? (
+                        <SkeletonTable columns={["ID", "Name", "Email", "Orders", "Actions"]} />
+                    ) : filteredRestaurants.length > 0 ? (
                         <div className="card overflow-x-auto">
                             <table className="table-fixed w-full">
                                 <thead>
@@ -393,46 +549,7 @@ export default function AdminOrders() {
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                {restaurants.map((restaurant) => (
-                                    <tr
-                                        key={restaurant.id}
-                                        className="border-b border-accent last:border-0"
-                                    >
-                                        <td className="w-1/5 px-4 py-2 text-neutral hidden md:table-cell whitespace-normal">
-                                            {restaurant.id}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {restaurant.name}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {restaurant.email}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral whitespace-normal">
-                                            {restaurant.orderCount}
-                                        </td>
-                                        <td className="w-1/5 px-4 py-2 text-neutral hidden sm:table-cell whitespace-normal">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setRestaurantToEdit(restaurant);
-                                                    setIsCompanyModalOpen(true);
-                                                }}
-                                                className="cursor-pointer mx-1 text-blue-500 hover:text-blue-700"
-                                            >
-                                                <i className="fa fa-pencil"></i>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setRestaurantToDelete(restaurant)}
-                                                className="cursor-pointer mx-1 text-red-500 hover:text-red-700"
-                                            >
-                                                <i className="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
+                                <tbody>{filteredRestaurants.map(renderRestaurantRow)}</tbody>
                             </table>
                         </div>
                     ) : (
@@ -440,7 +557,7 @@ export default function AdminOrders() {
                     )}
                 </section>
 
-                {/* Confirmation modal for deleting a restaurant */}
+                {/* Confirmation Modal for Deleting a Restaurant */}
                 {restaurantToDelete && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
                         <div
@@ -448,12 +565,9 @@ export default function AdminOrders() {
                             onClick={() => setRestaurantToDelete(null)}
                         ></div>
                         <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
-                            <h3 className="text-xl font-bold text-primary mb-4">
-                                Confirm Delete
-                            </h3>
+                            <h3 className="text-xl font-bold text-primary mb-4">Confirm Delete</h3>
                             <p className="mb-6 text-neutral">
-                                Are you sure you want to delete restaurant &quot;
-                                {restaurantToDelete.name}&quot;?
+                                Are you sure you want to delete restaurant &quot;{restaurantToDelete.name}&quot;?
                             </p>
                             <div className="flex justify-end space-x-4">
                                 <button
@@ -478,7 +592,7 @@ export default function AdminOrders() {
                     </div>
                 )}
 
-                {/* Confirmation modal for deleting an accessory */}
+                {/* Confirmation Modal for Deleting an Accessory */}
                 {accessoryToDelete && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 fade-in">
                         <div
@@ -486,12 +600,9 @@ export default function AdminOrders() {
                             onClick={() => setAccessoryToDelete(null)}
                         ></div>
                         <div className="relative bg-light rounded p-6 mx-4 max-w-sm w-full card">
-                            <h3 className="text-xl font-bold text-primary mb-4">
-                                Confirm Delete
-                            </h3>
+                            <h3 className="text-xl font-bold text-primary mb-4">Confirm Delete</h3>
                             <p className="mb-6 text-neutral">
-                                Are you sure you want to delete accessory &quot;
-                                {accessoryToDelete.name}&quot;?
+                                Are you sure you want to delete accessory &quot;{accessoryToDelete.name}&quot;?
                             </p>
                             <div className="flex justify-end space-x-4">
                                 <button
